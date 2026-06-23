@@ -148,18 +148,6 @@ for link in "$HOME"/.claude/skills/*; do
 done
 ```
 
-#### Option 2 — GNU Stow
-
-[GNU Stow](https://www.gnu.org/software/stow/) is the dotfiles-standard symlink-farm manager — fully reversible, worth it if you already manage dotfiles this way.
-
-```bash
-brew install stow            # macOS  (Linux: apt/dnf install stow)
-cd ~/Projects/tars
-stow --target="$HOME/.claude/skills" --dir="$PWD" skills
-```
-
-**Uninstall:** `stow --target="$HOME/.claude/skills" --dir="$PWD" --delete skills`
-
 ## Repository layout
 
 ```
