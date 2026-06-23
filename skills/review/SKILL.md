@@ -13,7 +13,7 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
 - When a PR is open and review comments need responses
 - When returning to a PR after addressing feedback
 
-**When NOT to use:** Conducting a review of someone else's code — **delegate that to the `code-reviewer` sub-agent** (invoke it by bare name; a project-local `.claude/agents/code-reviewer.md` overrides the bundled default, so never pin the plugin-namespaced form). For an AWS-hosted change, you may additionally fan out to the optional `aws-reviewer`. This skill is for *creating and responding to* reviews, not conducting them.
+**When NOT to use:** Conducting a review of someone else's code — **delegate that to the `code-reviewer` sub-agent** — invoke it by bare name via the Agent tool (`subagent_type: "code-reviewer"`); a project-local `.claude/agents/code-reviewer.md` overrides the bundled default, so never pin the plugin-namespaced form. For an AWS-hosted change, you may additionally fan out to the optional `aws-reviewer`. This skill is for *creating and responding to* reviews, not conducting them.
 
 ## Two Sub-Flows
 

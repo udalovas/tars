@@ -33,11 +33,13 @@ The review steps fan out to dedicated review agents, bundled at `agents/` and sh
 
 | Agent | Used by | Role |
 |---|---|---|
-| `code-reviewer` | `/review` | Five-dimension review of a code diff or PR. |
+| `code-reviewer` | `/review` † | Five-dimension review of a code diff or PR. |
 | `design-reviewer` | `/design-review` | Architecture-altitude EDD review, incl. trade-off analysis on hard-to-reverse decisions. |
 | `security-auditor` | `/design-review` | Generic application-security core **+** a self-gating commodities-trading compliance lens (data-protection / market-integrity / AI-regulation). No org specifics — escalation paths come from the project. |
 | `test-engineer` | `/test` | Test strategy and coverage-gap analysis. |
-| `aws-reviewer` | `/design-review`, `/review` | **Optional** AWS Well-Architected lens. Self-declines on non-AWS projects, so it's purely additive. |
+| `aws-reviewer` | `/design-review`; `/review` † | **Optional** AWS Well-Architected lens. Self-declines on non-AWS projects, so it's purely additive. |
+
+† `/review` doesn't conduct a review itself — it **delegates** to `code-reviewer` (and, for AWS-hosted changes, `aws-reviewer`) when you ask it to review code. The unmarked rows are invoked directly by their skill's own workflow.
 
 These agents enrich the review passes; they are **not** a hard dependency. On a machine where they aren't installed (e.g. a partial manual install), the skills perform the review inline instead.
 

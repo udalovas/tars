@@ -259,7 +259,7 @@ Here's the architecture overview section [300 words]. Does this section look rig
 After writing the EDD:
 
 1. Confirm it's saved to docs/EDD/{number}-{topic}.md
-2. Prompt: "EDD saved. Run `/design-review docs/EDD/{file}` to get a code-reviewer + security-auditor pass before implementation, or `/plan docs/EDD/{file}` to go straight to task breakdown."
+2. Prompt: "EDD saved. Run `/design-review docs/EDD/{file}` to get a design-reviewer + security-auditor pass before implementation, or `/plan docs/EDD/{file}` to go straight to task breakdown."
 3. If implementing, the main conversation continues with the EDD as reference
 
 ## Additional Resources

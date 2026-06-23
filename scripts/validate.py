@@ -26,10 +26,14 @@ def load_json(path: Path) -> dict | None:
         err(f"{path.relative_to(ROOT)}: missing")
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         err(f"{path.relative_to(ROOT)}: invalid JSON — {e}")
         return None
+    if not isinstance(data, dict):
+        err(f"{path.relative_to(ROOT)}: top-level JSON must be an object")
+        return None
+    return data
 
 
 def require(obj: dict, key: str, where: str) -> None:
