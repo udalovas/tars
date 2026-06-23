@@ -1,0 +1,5 @@
+# Claude Code local, machine-specific settings (permissions, overrides)
+.claude/settings.local.json
+
+# OS / editor noise
+.DS_Store
