@@ -15,3 +15,15 @@ jobs:
           python-version: "3.x"
       - name: Validate manifests and skill/agent frontmatter
         run: python3 scripts/validate.py
+
+  version-bump:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require a version bump when skills/ or agents/ change
+        run: |
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          bash scripts/check-version-bump.sh "origin/$GITHUB_BASE_REF"
