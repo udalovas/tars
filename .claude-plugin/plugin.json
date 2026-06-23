@@ -3,6 +3,15 @@
   "description": "Portable intelligence for AI agents — skills, prompts, and workflows that travel across projects and machines. Ships an opinionated Claude Code engineering workflow: refine, design, design-review, plan, implement, test, review.",
   "version": "0.1.0",
   "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "skills",
+    "agents",
+    "sdlc",
+    "engineering-workflow",
+    "code-review"
+  ],
   "author": {
     "name": "Aleksei Udalov"
   },
