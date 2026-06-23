@@ -81,6 +81,8 @@ Inside any Claude Code session, run:
 
 That's it — the skills (`/refine`, `/design`, …) are available everywhere. Skills from a plugin are namespaced, so you may also see them as `/tars:refine`.
 
+> **Just want one skill?** The plugin intentionally installs the full, curated workflow — Claude Code has no per-skill `/plugin install` (the plugin is the smallest installable unit). To cherry-pick a single skill, e.g. just `/refine`, use the [single-skill install](#install-a-single-skill) below.
+
 **Update:** plugins track the marketplace repo. Pull the latest with `/plugin marketplace update tars`, then `/plugin install tars` again if needed. Because `plugin.json` declares a `version`, bump it on release so installs pick up changes predictably.
 
 **Uninstall / disable:** `/plugin uninstall tars` (use the `/plugin` manager UI to disable without removing).
@@ -91,9 +93,25 @@ That's it — the skills (`/refine`, `/design`, …) are available everywhere. S
 
 ### Backup — manual install (no plugin manager)
 
-If you can't use the plugin manager (older Claude Code, restricted environment, or you simply prefer raw files), clone the repo and link `skills/` into your global `~/.claude/skills`. Pick one.
+If you can't use the plugin manager (older Claude Code, restricted environment, or you simply prefer raw files), clone the repo and symlink what you want into your global `~/.claude/skills` — a single skill, or the whole suite.
 
-#### Option 1 — Per-skill symlinks
+#### Install a single skill
+
+Want only one skill — say `refine` — and none of the rest? A skill is a self-contained folder, so link just that one:
+
+```bash
+git clone https://github.com/udalovas/tars.git ~/Projects/tars
+mkdir -p ~/.claude/skills
+ln -sfn ~/Projects/tars/skills/refine ~/.claude/skills/refine   # swap "refine" for any skill in skills/
+```
+
+`/refine` is now available everywhere and nothing else from TARS is installed. Repeat the `ln -sfn` line for each additional skill you want — that's the per-skill granularity the plugin path doesn't offer.
+
+- **Cross-references are soft.** A skill may point you at the next step ("run `/design`"); if that skill isn't installed, the pointer just has nothing to resolve to — the skill itself still works standalone.
+- **Review agents are separate.** This links only the skill, not `agents/`, so `design-review` / `test` / `review` fall back to inline review. Link the agents too (see [Agents](#agents)) if you want the multi-agent passes.
+- **Update / uninstall:** the symlink tracks the repo, so `git pull` applies changes immediately; `rm ~/.claude/skills/refine` removes just that skill.
+
+#### Option 1 — Per-skill symlinks (full suite)
 
 Safe to re-run, and coexists with any other skills already in `~/.claude/skills`.
 
