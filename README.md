@@ -6,7 +6,7 @@ TARS is a repository of skills, tools, prompts, workflows, and agent behaviors t
 
 *Because every agent deserves a personality slider.*
 
-Today TARS ships an opinionated set of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) **skills**. Install it once as a plugin and the workflow travels with you to every project — no per-project copying, and updates arrive through `git pull`.
+Today TARS ships an opinionated set of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) **skills**. Install it once as a plugin and the workflow travels with you to every project — no per-project copying, and updates arrive through `/plugin marketplace update`.
 
 ## What's inside
 
