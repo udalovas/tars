@@ -1,6 +1,6 @@
 ---
 name: refine
-description: Guides engineers through requirement refinement via structured dialogue. Use when starting from a raw idea, a vague Jira ticket, or an unclear brief. Surfaces assumptions, establishes measurable success criteria, and produces a Jira-ready acceptance criteria block. Trigger phrases: "refine this requirement", "help me clarify this idea", "turn this into a Jira ticket", "/refine".
+description: Guides engineers through requirement refinement via structured dialogue. Use when starting from a raw idea, a vague ticket, or an unclear brief. Surfaces assumptions, establishes measurable success criteria, and produces a portable acceptance-criteria block you can hand to /design, save as a doc, or file in any issue tracker. Trigger phrases: "refine this requirement", "help me clarify this idea", "turn this into a ticket", "/refine".
 ---
 
 # Requirement Refine
@@ -9,12 +9,12 @@ Turn a raw idea into a clear, aligned requirement with measurable success criter
 
 ## When to Use
 
-- Starting from a vague idea, a rough Jira ticket, or a one-liner brief
+- Starting from a vague idea, a rough ticket, or a one-liner brief
 - Requirements feel ambiguous or assumptions are hidden
 - Stakeholders may not be aligned on scope or purpose
 - Before running `/design` — a solid requirement makes design faster and reduces rework
 
-**When NOT to use:** Bug fixes with a clear reproduction case; changes where the requirement is already a well-formed Jira ticket with AC.
+**When NOT to use:** Bug fixes with a clear reproduction case; changes where the requirement is already a well-formed ticket or spec with acceptance criteria.
 
 ## The Process
 
@@ -73,18 +73,30 @@ Once dialogue is complete, produce:
 
 **Out of Scope:** [explicit list]
 
-**Suggested Jira AC:**
+**Acceptance Criteria:**
 - Given [context], when [action], then [outcome]
 - Given [context], when [action], then [outcome]
 ```
 
-Ask: "Does this look right? Shall I create or update the Jira ticket?"
+This block is **tool-neutral** — it drops cleanly into a design doc, a Markdown file, or any issue tracker.
 
-### Step 5: Persist to Issue Tracker (Optional)
+Ask: "Does this look right?" Once confirmed, move to capture (Step 5).
 
-If the user confirms and an issue-tracker integration is available (e.g. a `jira` skill), create a new ticket or update the existing one. The tracker is the single source of truth — no local file is written. If no tracker is available, hand the requirement block back to the user to file themselves.
+### Step 5: Capture the Refined Requirement
 
-After the ticket is done: "Requirement refined. Run `/design` to start the EDD."
+The refined requirement has one natural next step — `/design` — and, optionally, a place to persist it. **Don't assume a tracker.** Ask the user where to capture it (via `AskUserQuestion`), then do it. Pick **one** home to keep a single source of truth; avoid duplicating the same block into several places.
+
+Options, roughly in order of how lightweight they are:
+
+1. **Hand straight to `/design`** *(default for a fast, solo flow)* — keep the block in the conversation and proceed; nothing is persisted separately. Best when you'll design immediately.
+2. **Local Markdown doc** — write the block to a version-controlled file in the repo (e.g. `docs/requirements/{NNN}-{kebab-title}.md`, or alongside the project's EDDs — check `CLAUDE.md` for the convention). No external tooling, travels with the code, reviewable in a PR.
+3. **Issue tracker** — if an integration is available (e.g. a `jira` skill, Linear, GitHub Issues, Asana), create or update the ticket. Use this when the team's planning lives in the tracker.
+4. **Wiki / knowledge base** — e.g. a Confluence or Notion page, if that's where the team keeps specs.
+5. **Just output it** — print the block for the user to paste wherever they like.
+
+If the user expresses no preference, default to **(1)** when they're ready to design now, otherwise **(2)** so the requirement isn't lost. Only reach for a tracker (3) when the user asks for it or the input came from one.
+
+After capture: "Requirement refined. Run `/design` to start the EDD."
 
 ## Common Rationalizations
 
@@ -111,3 +123,4 @@ After the ticket is done: "Requirement refined. Run `/design` to start the EDD."
 - [ ] Assumptions are listed and confirmed, not buried
 - [ ] Out-of-scope list is explicit
 - [ ] User has confirmed the output before proceeding
+- [ ] Requirement captured in exactly one agreed home (or intentionally handed straight to `/design`) — not duplicated, not silently dropped
