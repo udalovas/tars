@@ -37,12 +37,12 @@ Transform ideas into validated Engineering Design Documents (EDDs) through colla
 
 1. **Read project documentation:**
    - Review CLAUDE.md for project architecture
-   - Check existing EDDs in docs/EDD/ for patterns
+   - Check existing design docs (EDDs — `docs/EDD/` by convention, check CLAUDE.md) for patterns
    - Read relevant code sections
 
 2. **Scan the codebase for related patterns:**
-   - Search `docs/EDD/` for EDDs that touch the same domain: `grep -rl "topic" docs/EDD/`
-   - Find similar implementations: `grep -rl "topic" packages/ cdk/` (limit to 5 most relevant files)
+   - Search the project's design-doc directory for EDDs that touch the same domain: `grep -rl "topic" docs/EDD/`
+   - Find similar implementations in the source tree: `grep -rl "topic" <source-dirs>` (limit to 5 most relevant files)
    - Check recent commits: `git log --oneline --grep="topic" -10`
    - Note existing patterns to reuse — don't design what already exists
 
@@ -54,7 +54,7 @@ Transform ideas into validated Engineering Design Documents (EDDs) through colla
 **Example questions:**
 - "What triggers this feature? (User action / Scheduled task / External event)"
 - "How should errors be handled? (Retry with backoff / Fail fast / Log and continue)"
-- "Where does this fit in the architecture? (Lambda handler / Service layer / DTO)"
+- "Where does this fit in the architecture? (Map the options to the project's actual layers)"
 
 **Exit criteria:**
 - ✓ Read CLAUDE.md and relevant EDDs
@@ -265,5 +265,5 @@ After writing the EDD:
 ## Additional Resources
 
 For detailed examples and advanced patterns, consult:
-- **`references/dialogue-examples.md`** - Complete design session examples
-- **`references/edd-patterns.md`** - EDD templates and patterns from this project
+- **`references/dialogue-examples.md`** - Complete design session examples (generic; adapt to the host project)
+- **`references/edd-patterns.md`** - Stack-neutral EDD templates and patterns

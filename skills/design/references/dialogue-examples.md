@@ -1,277 +1,211 @@
 # Design Dialogue Examples
 
-This reference file contains complete examples of design sessions from start to finish. Use these as templates when guiding users through the design process.
+Complete examples of design sessions from start to finish. Use these as templates for the *shape* of the dialogue — the domains and tech below are deliberately generic. In a real session, ground every example in the **host project's** actual architecture (read its `CLAUDE.md` and code first).
 
-## Example 1: CAM Assignment Sync Feature
+## Example 1: Notify on Order Status Change
 
 ### Phase 1: Understanding Context
 
 **Claude:**
-I'll help you design the CAM assignment sync feature. Let me start by understanding the project context.
+I'll help you design the order-status notification feature. Let me start by understanding the project context.
 
-*[Reads CLAUDE.md, existing EDDs, searches for HubSpot-related code]*
+*[Reads CLAUDE.md, existing EDDs, searches for how the project currently handles events]*
 
-I see this is a Pre-Trade Services monorepo with a HubSpot integration service already in place. The existing service handles webhook events from HubSpot.
+I see the service already processes order events and has an existing notification component. To clarify the requirements, one question:
 
-To clarify the requirements, I have a question:
+**Question:** What triggers a notification?
+- A user action (manual)
+- A scheduled job
+- An order-status change event (event-driven)
 
-**Question:** What triggers the CAM assignment sync?
-- User action (manual trigger)
-- Scheduled task (cron job)
-- External event (HubSpot webhook)
-
-**User:** HubSpot webhook when CAM assignments change.
+**User:** When an order's status changes.
 
 ### Phase 2: Exploring Approaches
 
 **Claude:**
-Based on the existing HubSpot integration architecture, I've identified three approaches:
+Based on the existing event-handling architecture, I've identified three approaches:
 
-**Option 1: Event-Driven Webhook Handler (Recommended)**
-- Extend existing webhook handler to process CAM assignment change events
-- Handler validates, stores event, then worker calls COS API to update
-- ✓ Real-time sync, consistent with current architecture, minimal latency
-- ✗ Requires webhook configuration in HubSpot
+**Option 1: Hook into the existing status-change event (Recommended)**
+- Extend the current handler to emit a notification when status transitions
+- ✓ Real-time, consistent with current architecture, minimal new surface area
+- ✗ Couples notification timing to the status-change path
 
-**Option 2: Scheduled Batch Sync**
-- Cron job queries HubSpot API every N minutes for changes
-- Batch updates to COS
-- ✓ Simpler HubSpot configuration, handles bulk changes well
-- ✗ Delayed updates (up to N minutes), higher API usage, polling overhead
+**Option 2: Scheduled diff/poll**
+- A periodic job compares statuses and notifies on changes
+- ✓ Decoupled from the write path; handles bulk changes well
+- ✗ Delayed (up to the poll interval); extra read load
 
-**Option 3: Manual API Trigger**
-- REST endpoint that fetches from HubSpot and pushes to COS on demand
-- ✓ Full control over timing, useful for backfills
-- ✗ Requires manual intervention, not automated
+**Option 3: Manual trigger endpoint**
+- An endpoint that sends notifications on demand
+- ✓ Full control; useful for backfills
+- ✗ Not automated; needs human action
 
-Recommendation: Option 1 because it leverages the existing webhook infrastructure, provides real-time updates, and follows the established pattern in this codebase.
+Recommendation: Option 1 — it reuses the existing event flow and gives real-time delivery, matching the established pattern in this codebase.
 
 **Question:** Which approach fits better for your needs?
 
-**User:** Option 1 looks good. We need real-time updates.
+**User:** Option 1. We need it real-time.
 
 ### Phase 3: Presenting the Design
 
 **Claude:**
-Great! Let me design the webhook-driven CAM sync flow section by section.
+Great — let me design the event-driven flow section by section.
 
 #### Section 1: Architecture Overview
 
-The CAM assignment sync extends the existing HubSpot webhook handler to process `company.propertyChange` events where `propertyName` is `cam_owner`. The flow follows the standard handler → DynamoDB → SQS → worker pattern:
+The feature extends the existing status-change handler. When an order transitions to a notify-worthy status, the handler enqueues a notification job; a worker renders and sends it. This follows the project's existing handler → queue → worker pattern.
 
 ```
-HubSpot Webhook → API Gateway → Handler Lambda
-                                     ↓
-                                  DynamoDB (event store)
-                                     ↓
-                                  SQS Queue
-                                     ↓
-                                  Worker Lambda → COS API
+Order status change → Handler → Queue → Worker → Notification channel
 ```
-
-Key changes:
-- Handler identifies CAM assignment events by property name
-- Worker fetches CAM details from HubSpot API
-- Worker calls COS API to update counterparty CAM assignment
-- Same error handling and retry logic as existing webhook processing
 
 **Question:** Does this section look right so far?
 
-**User:** Yes, makes sense.
+**User:** Yes.
 
 **Claude:**
-Great! Moving to the next section.
+Moving on.
 
 #### Section 2: Components and Responsibilities
 
-**Handler Lambda** ([hubspot-integration-webhook-handler](../packages/hubspot-integration-webhook-handler/)):
-- Validates HubSpot signature (existing)
-- Checks for duplicate events (existing)
-- **NEW:** Identifies CAM assignment events (`propertyName === 'cam_owner'`)
-- Stores event in DynamoDB (existing)
-- Enqueues to SQS (existing)
-
-**Worker Lambda** ([hubspot-integration-webhook-worker](../packages/hubspot-integration-webhook-worker/)):
-- Fetches event from DynamoDB (existing)
-- Marks as "processing" (existing)
-- **NEW:** If event is CAM assignment:
-  - Fetch company details from HubSpot API
-  - Fetch CAM user details from HubSpot API
-  - Map HubSpot CAM to COS user ID
-  - Call COS API to update counterparty CAM assignment
-- Updates status (existing)
-
-**DynamoDB Table:**
-- No schema changes needed, `propertyName` and `propertyValue` already captured
-
-**SQS Queue:**
-- No changes needed
+- **Handler** — detects the qualifying status transition (NEW), enqueues a job (existing plumbing).
+- **Worker** — loads order + recipient, renders the message, sends via the notification channel (NEW: the render + send for this message type).
+- **Data model** — no schema change; the order record already carries status and recipient.
 
 **Question:** Does this section look right so far?
 
-**User:** How do we map HubSpot CAM to COS user ID?
+**User:** How do we decide *who* gets notified?
 
 **Claude:**
-Good question! We need a mapping strategy. Let me revise that section.
+Good question — let me revise with a recipient-resolution rule.
 
-#### Section 2 (Revised): Components and Responsibilities
+#### Section 2 (Revised)
 
-[Same as above, but with mapping detail added]
-
-**Mapping Strategy:**
-- Use HubSpot user email as the lookup key
-- Call COS API `GET /users?email={hubspot_cam_email}` to find COS user ID
-- Cache mappings in DynamoDB with TTL (1 hour) to reduce COS API calls
-- If no match found, log warning and mark event as "failed" with clear error message
+**Recipient resolution:**
+- Look up the order's owner; fall back to the account contact if no owner is set.
+- If neither exists, log a warning and mark the job failed with a clear reason (don't silently drop).
 
 **Question:** Does this revised section work better?
 
 **User:** Perfect.
 
-**Claude:**
-Great! Continuing to data flow.
-
 #### Section 3: Data Flow
 
-1. HubSpot sends webhook: `company.propertyChange` for `cam_owner`
-2. Handler receives event:
-   ```json
-   {
-     "objectId": "123456",
-     "propertyName": "cam_owner",
-     "propertyValue": "789"  // HubSpot user ID
-   }
-   ```
-3. Handler stores in DynamoDB and enqueues
-4. Worker processes event:
-   - Fetch company: `GET /crm/v3/objects/companies/123456?properties=domain,name,cam_owner`
-   - Fetch CAM user: `GET /crm/v3/objects/owners/789`
-   - Check cache for `cam_email → cos_user_id` mapping
-   - If not cached, call COS: `GET /users?email={cam_email}`
-   - Call COS: `PATCH /counterparties/{domain}` with `{ "cam_user_id": "{cos_user_id}" }`
-5. Worker updates event status to "completed"
+1. Order status changes to `shipped`.
+2. Handler detects the transition and enqueues `{ orderId, newStatus }`.
+3. Worker loads the order, resolves the recipient, renders the message, sends it.
+4. Worker records delivery status (sent / failed + reason).
 
 **Question:** Does this section look right so far?
 
-**User:** Yes, looks good.
+**User:** Yes.
 
 [Continue for remaining sections: Error Handling, Testing Strategy, Deployment]
 
 ### Phase 4: Documentation
 
 **Claude:**
-I'll now create the EDD document.
+*[Determines next sequence number, reads a recent EDD as a template, writes the EDD]*
 
-*[Determines next sequence number, reads existing EDD as template, writes EDD]*
+EDD complete and saved to `docs/EDD/0NN-order-status-notification.md`.
 
-EDD complete and saved to [docs/EDD/001-cam-assignments.md](../../docs/EDD/001-cam-assignments.md).
+**Question:** Ready to implement, or refine anything?
 
-**Question:** Ready to implement, or would you like to refine anything?
-
-**User:** Looks good, let's implement.
+**User:** Let's implement.
 
 ---
 
-## Example 2: Adding Pagination to Webhook Events API
-
-[Another complete example showing a simpler feature]
+## Example 2: Add Pagination to a List Endpoint
 
 ### Phase 1: Understanding Context
 
 **Claude:**
-I'll help design pagination for the webhook events API. Let me check the current implementation.
+I'll help design pagination for the list endpoint. Let me check the current implementation.
 
-*[Reads webhook-service.ts, checks API spec]*
+*[Reads the service code and the API spec]*
 
-Current implementation returns all events in a single response. For large result sets, this could cause memory issues.
+The endpoint currently returns all records in one response, which risks memory and latency issues as data grows.
 
-**Question:** What's the expected maximum number of events?
-- Small (< 100 events)
-- Medium (100-1000 events)
-- Large (> 1000 events)
+**Question:** What's the expected maximum result size?
+- Small (< 100)
+- Medium (100–1,000)
+- Large (> 1,000)
 
-**User:** Could be thousands over time.
+**User:** Thousands over time.
 
 ### Phase 2: Exploring Approaches
 
 **Claude:**
-For handling thousands of events, I've identified two approaches:
+For thousands of records, two approaches:
 
-**Option 1: Cursor-Based Pagination (Recommended)**
-- Use ElectroDB's built-in cursor support
-- Return `continuationToken` with each response
-- Client passes token for next page
-- ✓ Efficient, handles large datasets, stateless
-- ✗ Can't jump to arbitrary page numbers
+**Option 1: Cursor-based pagination (Recommended)**
+- Return a `continuationToken`; the client passes it back for the next page
+- ✓ Efficient and stateless; scales to large datasets
+- ✗ Can't jump to an arbitrary page number
 
-**Option 2: Offset-Based Pagination**
-- Use `limit` and `offset` parameters
-- Return page numbers
-- ✓ Familiar pattern, can jump to any page
-- ✗ Inefficient for DynamoDB (scans from beginning each time), slower for large offsets
+**Option 2: Offset-based pagination**
+- `limit` + `offset` with page numbers
+- ✓ Familiar; supports jumping to any page
+- ✗ Degrades on large offsets; many data stores scan from the start each time
 
-Recommendation: Option 1 because DynamoDB scan operations natively support cursors and this is more efficient for the dataset size.
+Recommendation: Option 1 — it matches how the project's data store reads efficiently and the use case doesn't need page numbers.
 
-**Question:** Which approach fits better for your needs?
+**Question:** Which fits your needs?
 
-**User:** Option 1 is fine, we don't need page numbers.
+**User:** Option 1 — no page numbers needed.
 
 ### Phase 3: Presenting the Design
-
-**Claude:**
-Perfect! This will be a simple change to the existing API.
 
 #### Section 1: API Changes
 
 **Current:**
-```typescript
-GET /webhook-events
-Response: { items: WebhookEvent[] }
+```
+GET /items
+Response: { items: [...] }
 ```
 
 **New:**
-```typescript
-GET /webhook-events?limit=100&continuationToken=abc123
+```
+GET /items?limit=100&continuationToken=abc123
 Response: {
-  items: WebhookEvent[],
-  continuationToken?: string  // Present if more results exist
+  items: [...],
+  continuationToken?: "..."   // present only if more results exist
 }
 ```
 
-Default `limit`: 100
-Max `limit`: 1000
+Default `limit`: 100. Max `limit`: 1000.
 
 **Question:** Does this section look right so far?
 
 **User:** Yes.
 
-[Continue with remaining sections: Implementation Changes, Testing, etc.]
+[Continue with: Implementation Changes, Testing, Backwards-compatibility]
 
 ---
 
 ## Key Patterns from Examples
 
 ### Question Progression
-1. Start broad (trigger mechanism)
+1. Start broad (trigger / scope)
 2. Get narrower (specific details)
 3. One question at a time
-4. Use multiple choice when possible
+4. Multiple choice when possible
 
 ### Approach Presentation
-- Always 2-3 options
-- Lead with recommended
+- Always 2–3 options
+- Lead with the recommended one
 - Honest about trade-offs
-- Context-specific reasoning
+- Reasoning grounded in the actual project
 
 ### Incremental Validation
-- 200-300 words per section
+- 200–300 words per section
 - Ask after EACH section
 - Be ready to revise
-- Don't dump 3000 words at once
+- Don't dump 3,000 words at once
 
 ### Handling Objections
-When user asks clarifying questions during design:
-1. Acknowledge the gap
+When the user raises a gap mid-design:
+1. Acknowledge it
 2. Revise that section
 3. Show the revision
 4. Ask: "Does this revised section work better?"

@@ -32,11 +32,11 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
    git diff main..HEAD --stat
    ```
 
-2. **Find the relevant EDD** (if exists):
+2. **Find the relevant EDD** (if the project keeps them; `docs/EDD/` by convention — check `CLAUDE.md`):
    ```bash
    grep -rl "$(git log --oneline -1 | cut -c9-)" docs/EDD/ 2>/dev/null | head -1
    ```
-   Read the EDD summary section for description language.
+   Read the EDD summary section for description language. Skip this step if the project has no EDDs.
 
 3. **Draft PR:**
    - Title: ≤ 70 characters, imperative verb ("Add webhook signature retry logic")

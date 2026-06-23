@@ -20,7 +20,7 @@ Decompose an EDD into small, ordered, verifiable tasks. Good task breakdown is t
 
 ### Step 1: Read the EDD
 
-Read the EDD file from `$ARGUMENTS`. If no path provided:
+Read the EDD file from the path the user provided. If no path provided, list recent design docs from the project's EDD directory (`docs/EDD/` by convention — check `CLAUDE.md`):
 ```bash
 ls docs/EDD/ | grep -E '^[0-9]+' | sort -n | tail -5
 ```
@@ -50,10 +50,10 @@ Group work into thin vertical slices — each slice delivers working, testable f
 
 **Bad (horizontal):**
 ```
-Task 1: All DynamoDB entities
+Task 1: All data-model entities
 Task 2: All service functions
-Task 3: All Lambda handlers
-Task 4: All CDK changes
+Task 3: All request handlers
+Task 4: All infrastructure changes
 Task 5: All tests
 ```
 
@@ -61,7 +61,7 @@ Task 5: All tests
 ```
 Task 1: Create data layer + service + handler for operation A — tests pass
 Task 2: Add operation B end-to-end — tests pass
-Task 3: Infrastructure update — synth / validate passes
+Task 3: Infrastructure update — validation passes
 ```
 
 Each vertical slice leaves the codebase in a passing, committable state.
@@ -87,7 +87,7 @@ status:      pending
 
 Include in the task content:
 - **Accept:** what must be true when done
-- **Verify:** exact command (e.g. `npm run test -w packages/<package-name>`)
+- **Verify:** exact runnable command for this project (e.g. `npm run test -w packages/<name>`, `pytest tests/x`, `go test ./pkg/...`)
 - **Files:** which files will be created or changed
 - **Parallel:** yes | no (whether this can run concurrently with other tasks)
 

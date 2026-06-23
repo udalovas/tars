@@ -92,7 +92,7 @@ If the verification command fails:
 
 ### Rule 4: Follow Project Standards
 
-Before each task, read `.claude/rules/` for the standards that apply to the code being written. Apply them — don't wait for a review comment.
+Before each task, read the project's coding standards (see `CLAUDE.md`, and any rules it references such as a `.claude/rules/` directory) for the conventions that apply to the code being written. Apply them — don't wait for a review comment.
 
 ## Handling Blocked Tasks
 
@@ -130,9 +130,9 @@ Next: run `/review` to create the PR.
 ## Red Flags
 
 - More than one task's worth of changes uncommitted
-- Committing with `npm test` skipped
+- Committing with the test command skipped
 - Implementing features not in the task list (scope creep)
-- `any` types, `console.log`, or other patterns explicitly banned in `.claude/rules/`
+- Patterns explicitly banned by the project's standards (e.g. `any` types or stray debug logging in a TS project)
 - Starting the next task before the current one's verification command passes
 
 ## Verification

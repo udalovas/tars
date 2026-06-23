@@ -145,7 +145,7 @@ For each major or critical comment, make the necessary code changes. Work throug
 
 1. Read the relevant file at the indicated path/line
 2. Understand what the reviewer is asking
-3. Implement the fix — follow the project's existing patterns (TypeScript, ElectroDB, Lambda standards as per CLAUDE.md)
+3. Implement the fix — follow the project's existing patterns and standards (see `CLAUDE.md`)
 4. Do not add comments to the code explaining the fix — the commit message will do that
 
 Group all fixes into a single working set (do not commit after each one).
@@ -154,18 +154,17 @@ Group all fixes into a single working set (do not commit after each one).
 
 ## Step 6 — Commit and Push
 
-After all fixes are applied, run the full test suite:
+After all fixes are applied, run the project's full verification — auto-fix/format, type-check, and tests. **Use the commands defined in `CLAUDE.md`**; the block below is only an illustrative Node/npm example.
 
 ```bash
-# Always run biome fix
+# Auto-fix / format   (e.g. npm run fix · ruff --fix · gofmt -w)
 npm run fix
 
-# Type checking
+# Type checking       (e.g. npm run test:tsc · mypy · tsc --noEmit)
 npm run test:tsc
 
-# Tests
+# Tests               (e.g. npm test · pytest · go test ./...)
 npm test
-npm run test:cdk
 ```
 
 If any of these fail, do not push. Report the failures to the user and stop.

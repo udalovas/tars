@@ -21,15 +21,24 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 | `implement` | `/implement` | Builds the task list one vertical slice at a time: implement → test → commit. |
 | `test` | `/test` | Runs the suite, auto-fixes mechanical failures, escalates the rest. |
 | `review` | `/review` | Opens a PR with a clean description and responds to review comments. |
-| `review-resolve-comments` | `/resolve-pr-comments` | Classifies PR comments by impact, fixes major/critical, replies with the commit reference. |
+| `resolve-pr-comments` | `/resolve-pr-comments` | Classifies PR comments by impact, fixes major/critical, replies with the commit reference. |
 
 Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments`.
+
+The skills are **project-agnostic**: they carry generic workflow logic and read project-specific details (test/lint commands, design-doc location, coding standards) from each project's own `CLAUDE.md`. Example commands in the skills (npm, etc.) are clearly marked as examples, not assumptions.
 
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
-- `git`
+- `git`; a GitHub repo + `gh` CLI for the PR-related skills (`review`, `resolve-pr-comments`)
 - macOS, Linux, or Windows (the plugin install is OS-agnostic; the backup symlink/Stow steps assume a POSIX shell)
+
+### Optional integrations
+
+These skills use extra capabilities **if present**, and degrade gracefully if not:
+
+- **Review agents** — `design-review` and `test` use `code-reviewer` / `security-auditor` / `test-engineer` agents when the host environment provides them; otherwise they perform the review inline. TARS does not bundle these agents (they tend to be org-specific). Add your own under a project's `.claude/agents/` to get the richer multi-agent passes.
+- **Issue tracker** — `refine` can read from / write to an issue tracker (e.g. a `jira` skill) when available; otherwise it hands the requirement block back to you to file.
 
 ## Install
 
@@ -122,7 +131,7 @@ tars/
 │   ├── implement/
 │   ├── test/
 │   ├── review/
-│   └── review-resolve-comments/
+│   └── resolve-pr-comments/
 └── README.md
 ```
 

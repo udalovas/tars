@@ -1,6 +1,6 @@
 ---
 name: test
-description: Runs the test suite, auto-fixes mechanical failures, and escalates failures that require judgment. Supersedes the integration-tests skill. Use when running tests, debugging test failures, checking if tests pass, or verifying a change. Trigger phrases: "run tests", "run integration tests", "test the API", "check if tests pass", "verify handler logic", "debug test failures", "/test".
+description: Runs the test suite, auto-fixes mechanical failures, and escalates failures that require judgment. Use when running tests, debugging test failures, checking if tests pass, or verifying a change. Trigger phrases: "run tests", "run integration tests", "test the API", "check if tests pass", "verify handler logic", "debug test failures", "/test".
 ---
 
 # Smart Test Runner
@@ -14,29 +14,27 @@ Run the test suite. Auto-fix what can be fixed without judgment. Escalate the re
 - To verify a change didn't break existing behavior
 - When the CI pipeline reports test failures
 
-**Supersedes `integration-tests`** — all previous trigger phrases now activate this skill.
-
 ## Test Infrastructure
 
-Check `CLAUDE.md` for project-specific test commands and infrastructure setup. Common patterns:
+**Always check `CLAUDE.md` first for the project's actual test, lint, and type-check commands** — they vary by stack. Use whatever the project defines; the commands below are only illustrative examples for a Node/npm workspace.
 
 ```bash
-# Full suite
+# Full suite            (e.g. npm test · pytest · go test ./... · cargo test)
 npm test
 
-# Single package (if monorepo with workspaces)
+# Single package/module (e.g. monorepo workspace, or a single test file/path)
 npm run test -w packages/<package-name>
 
-# Type checking only
+# Type checking only    (e.g. npm run test:tsc · mypy · tsc --noEmit)
 npm run test:tsc
 ```
 
-If the project uses local infrastructure (databases, queues, servers), `npm test` typically starts it via `pretest` hooks. If you suspect infrastructure issues, see the Troubleshooting section.
+If the project uses local infrastructure (databases, queues, servers), the test command often starts it via a pre-test hook. If you suspect infrastructure issues, see the Troubleshooting section.
 
 ## Decision Tree
 
 ```
-Run tests (npm test or scoped variant)
+Run the project's test command (full or scoped)
         │
    Parse results
         │
@@ -68,9 +66,9 @@ Report ✓                       Categorize each failure
 ## Auto-Fix Rules
 
 **Apply automatically (no confirmation needed):**
-- Lint and format errors: `npm run fix` (or the project's equivalent)
+- Lint and format errors: run the project's auto-fix command (check `CLAUDE.md`; e.g. `npm run fix`, `ruff --fix`, `gofmt -w`)
 - Outdated snapshots: re-run with the appropriate update flag
-- TypeScript import errors caused by a renamed symbol where the new name is unambiguous
+- Import errors caused by a renamed symbol where the new name is unambiguous
 - Missing imports where there is exactly one candidate in the codebase
 
 **Never auto-fix (always escalate):**
@@ -101,11 +99,11 @@ Always include: file + line, exact error, why auto-fix was not applied, and a su
 
 ## Coverage Gap Detection
 
-When running tests on a module with **no existing tests**, invoke the `test-engineer` persona to propose a test strategy before reporting success:
+When running tests on a module with **no existing tests**, propose a test strategy before reporting success. Use a dedicated `test-engineer` agent if the host environment provides one; otherwise do the coverage-gap analysis inline.
 
 ```
-⚠️ No tests found for packages/new-service/src/handlers/my-handler.ts
-   Invoking test-engineer to recommend coverage...
+⚠️ No tests found for <path/to/new-module>
+   Proposing coverage before marking this complete...
 ```
 
 Do not treat "no tests, no failures" as a pass for newly written code.
@@ -116,7 +114,7 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 |---------|-----|
 | Infrastructure connection refused | Check `CLAUDE.md` for the prestart command to bring up local infrastructure |
 | Test hangs indefinitely | Local infrastructure may be stuck — stop and restart it |
-| Tests fail from package directory but pass from root | Infrastructure hooks only run at root — always use `npm run test -w <package>` from root |
+| Tests fail from package directory but pass from root | Infrastructure hooks often run only at the repo root — run the workspace-scoped test command from root (e.g. `npm run test -w <package>`) |
 | Type errors after code-gen change | Re-run the code generation step (see `CLAUDE.md`), then re-run tests |
 | Port in use | Check `CLAUDE.md` for the stop command to kill local dev processes |
 
@@ -140,5 +138,5 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 - [ ] Tests run from the correct location (monorepo root if infrastructure hooks are there)
 - [ ] All lint errors auto-fixed before escalating test failures
 - [ ] Escalated failures include file:line, error text, and suggested next step
-- [ ] Newly written modules without tests trigger `test-engineer` coverage gap analysis
+- [ ] Newly written modules without tests trigger a coverage gap analysis
 - [ ] Type checking passes (not just runtime tests)

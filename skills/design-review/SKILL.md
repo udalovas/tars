@@ -19,9 +19,9 @@ Review an EDD before implementation starts. Runs `code-reviewer` and `security-a
 
 ### Step 1: Load the EDD
 
-Read the EDD file from the path in `$ARGUMENTS` (e.g. `docs/EDD/023_Agentic_SDLC_Skills.md`).
+Read the EDD file from the path the user provided (e.g. `docs/EDD/023-agentic-sdlc-skills.md`).
 
-If no path provided, list recent EDDs:
+If no path provided, list recent design docs from the project's EDD directory (`docs/EDD/` by convention — check `CLAUDE.md` for the project's location):
 ```bash
 ls docs/EDD/ | grep -E '^[0-9]+' | sort -n | tail -5
 ```
@@ -29,22 +29,34 @@ Then ask: "Which EDD should I review?"
 
 ### Step 2: Parallel Fan-Out
 
-Spawn two agents concurrently. Each receives the full EDD content and the project context (CLAUDE.md path):
+Spawn two reviewers concurrently. Each receives the full EDD content and the project context (the path to `CLAUDE.md` and any project standards it points to).
+
+Prefer dedicated review agents if the host environment provides them (e.g. `code-reviewer`, `security-auditor`). **If those agents are not available, perform both passes inline yourself** — the skill must work on a clean machine with no custom agents installed.
 
 ```
-├── Agent: code-reviewer
+├── Reviewer: architecture & correctness  (agent: code-reviewer, if available)
 │   Prompt: "Review this EDD for architectural soundness, feasibility,
-│            completeness, and alignment with the project standards in
-│            CLAUDE.md and .claude/rules/. Identify blocking and
-│            non-blocking issues. EDD content: [full text]"
+│            completeness, trade-off analysis (see Step 2a), and alignment
+│            with the project standards referenced from CLAUDE.md. Identify
+│            blocking and non-blocking issues. EDD content: [full text]"
 │
-└── Agent: security-auditor
-    Prompt: "Review this EDD for security vulnerabilities, GDPR/MAR
-             exposure, and EU AI Act classification triggers. EDD
-             content: [full text]"
+└── Reviewer: security & compliance  (agent: security-auditor, if available)
+    Prompt: "Review this EDD for security vulnerabilities and for any
+             regulatory/compliance exposure relevant to this project (see
+             CLAUDE.md for the applicable regimes — e.g. data-protection,
+             market, or AI-specific regulation). EDD content: [full text]"
 ```
 
 Wait for both to complete before proceeding.
+
+### Step 2a: Trade-Off Analysis Check (architecture pass)
+
+For every **major architectural decision** in the EDD — one with a **high cost of change later** (data model / schema, public API or contract shape, persistence or messaging technology, service boundaries, sync vs async, build vs buy, security model) — confirm the EDD documents:
+
+- **At least one credible alternative** that was considered, and
+- **Why it was rejected** (the trade-off: what was gained, what was given up).
+
+A major decision presented with no alternatives and no rejection rationale is a **blocking issue** — record it as "Trade-off analysis missing for: [decision]". Reversible, low-cost-of-change decisions do not require this.
 
 ### Step 3: Merge Reports
 
@@ -115,11 +127,13 @@ Run `/plan docs/EDD/NNN_Feature_Name.md` when ready to proceed.
 
 - Proceeding to implementation with unacknowledged blocking issues
 - Running design review on a draft EDD that hasn't been through `/design` validation
-- Skipping the security-auditor pass for any feature that touches personal data or external APIs
+- A major, hard-to-reverse decision (data model, API contract, persistence tech) with no alternatives or trade-off rationale documented
+- Skipping the security & compliance pass for any feature that touches personal data or external APIs
 
 ## Verification
 
-- [ ] Both personas completed and their reports were read
+- [ ] Both review passes completed (dedicated agents or inline) and their reports were read
+- [ ] Every major / high-cost-of-change decision has a documented alternative + trade-off rationale (else flagged blocking)
 - [ ] Blocking vs. non-blocking issues correctly classified
 - [ ] Verdict appended to the EDD file
 - [ ] Engineer notified of verdict and blocking issues
