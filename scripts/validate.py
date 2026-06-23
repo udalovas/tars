@@ -73,10 +73,17 @@ def validate_manifests() -> None:
     if market is not None:
         for key in ("name", "plugins"):
             require(market, key, "marketplace.json")
-        for i, p in enumerate(market.get("plugins", []) or []):
-            for key in ("name", "source", "description"):
-                if not p.get(key):
-                    err(f"marketplace.json: plugins[{i}] missing '{key}'")
+        plugins = market.get("plugins")
+        if plugins is not None and not isinstance(plugins, list):
+            err("marketplace.json: 'plugins' must be an array")
+        else:
+            for i, p in enumerate(plugins or []):
+                if not isinstance(p, dict):
+                    err(f"marketplace.json: plugins[{i}] must be an object")
+                    continue
+                for key in ("name", "source", "description"):
+                    if not p.get(key):
+                        err(f"marketplace.json: plugins[{i}] missing '{key}'")
 
 
 def validate_dir(kind: str, base: Path, get_file) -> None:

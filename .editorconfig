@@ -11,3 +11,7 @@ indent_size = 2
 # Markdown uses two trailing spaces as a hard line break — don't strip them.
 [*.md]
 trim_trailing_whitespace = false
+
+# Python (scripts/) uses the standard 4-space indent.
+[*.py]
+indent_size = 4
