@@ -31,7 +31,9 @@ Then ask: "Which EDD should I review?"
 
 Spawn the reviewers concurrently. Each receives the full EDD content and the project context (the path to `CLAUDE.md` and any project standards it points to).
 
-Prefer dedicated review agents if the host environment provides them (`design-reviewer`, `security-auditor`, and — optionally — `aws-reviewer`). **If those agents are not available, perform the passes inline yourself** — the skill must work on a clean machine with no custom agents installed.
+**Delegate to dedicated sub-agents whenever they're available** — running each pass as its own sub-agent keeps the analysis focused and isolates its context from this thread. Use `design-reviewer`, `security-auditor`, and — optionally — `aws-reviewer`. **If those agents are not available, perform the passes inline yourself** — the skill must work on a clean machine with no custom agents installed.
+
+Always invoke an agent by its **bare name** (via the Agent tool / `subagent_type`, e.g. `subagent_type: "design-reviewer"`). Claude Code resolves a bare name to the highest-precedence definition, so a project's own `.claude/agents/<name>.md` transparently overrides the bundled default. **Do not pin the plugin-namespaced form and never overwrite a project-local agent file** — a team's own flavour of an agent must win.
 
 ```
 ├── Reviewer: architecture & correctness  (agent: design-reviewer, if available)

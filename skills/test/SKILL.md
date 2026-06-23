@@ -99,7 +99,9 @@ Always include: file + line, exact error, why auto-fix was not applied, and a su
 
 ## Coverage Gap Detection
 
-When running tests on a module with **no existing tests**, propose a test strategy before reporting success. Use a dedicated `test-engineer` agent if the host environment provides one; otherwise do the coverage-gap analysis inline.
+When running tests on a module with **no existing tests**, propose a test strategy before reporting success. **Delegate this to the `test-engineer` sub-agent whenever it's available** — invoke it by bare name (Agent tool / `subagent_type: "test-engineer"`); running it as a sub-agent keeps the coverage analysis focused and out of this run's context. If no such agent is available, do the coverage-gap analysis inline.
+
+Because the agent is referenced by bare name, a project's own `.claude/agents/test-engineer.md` is used in preference to the bundled default — never pin the plugin-namespaced form or overwrite a project-local agent.
 
 ```
 ⚠️ No tests found for <path/to/new-module>
