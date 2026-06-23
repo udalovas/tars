@@ -41,6 +41,18 @@ The review steps fan out to dedicated review agents, bundled at `agents/` and sh
 
 These agents enrich the review passes; they are **not** a hard dependency. On a machine where they aren't installed (e.g. a partial manual install), the skills perform the review inline instead.
 
+### Overriding a bundled agent
+
+Bundled agents are **lowest-precedence defaults**. Claude Code resolves an agent by its bare name to the highest-precedence definition it can find:
+
+```
+project   .claude/agents/<name>.md      ← wins
+user      ~/.claude/agents/<name>.md
+plugin    agents/<name>.md  (TARS)       ← fallback default
+```
+
+So if your team already has its own `test-engineer` — or any same-named agent — **drop it in the project's `.claude/agents/` and it transparently takes over**. No configuration, and nothing in TARS is touched or overwritten; the bundled version simply stops being selected. The agents ship with bare (un-namespaced) names precisely so this override works, and the skills always invoke them by bare name rather than pinning the plugin-namespaced form. To extend rather than replace, copy the bundled agent into `.claude/agents/` and edit your copy.
+
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed

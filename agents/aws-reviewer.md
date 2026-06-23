@@ -90,3 +90,4 @@ aws-reviewer: not applicable — no AWS hosting detected for this project. Skipp
 
 - **Invoke directly when:** reviewing an AWS-hosted change or design for cloud-platform concerns.
 - **Invoke via (optional):** the `design-review` skill (extra parallel pass when AWS hosting is detected) and the `review` skill (cloud pass on code diffs). Always optional and additive — its absence never blocks the pipeline, and it self-declines on non-AWS projects.
+- **Lowest-precedence default.** This is a bundled fallback. A project's `.claude/agents/aws-reviewer.md` (or a user's `~/.claude/agents/aws-reviewer.md`) of the same name overrides it automatically — skills invoke by bare name so a team's own flavour wins; don't pin the plugin-namespaced form.

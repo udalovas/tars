@@ -99,3 +99,4 @@ Critical: [n] | High: [n] | Medium: [n] | Low: [n]
 - **Invoke directly when:** security-focused review of a specific file, component, or design document.
 - **Invoke via:** the `design-review` skill (parallel fan-out alongside `design-reviewer`).
 - **Hand off:** cloud-platform hardening → `aws-reviewer` (optional). Do not invoke from another review persona; if `code-reviewer` or `design-reviewer` surfaces a security concern, it recommends a security pass and the owning skill initiates it.
+- **Lowest-precedence default.** This is a bundled fallback. A project's `.claude/agents/security-auditor.md` (or a user's `~/.claude/agents/security-auditor.md`) of the same name overrides it automatically — skills invoke by bare name so a team's own flavour wins; don't pin the plugin-namespaced form.

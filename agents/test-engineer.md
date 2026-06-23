@@ -96,3 +96,4 @@ Use the framework and mock patterns already established in this project (read ex
 - **Invoke directly when:** designing tests, analysing coverage gaps, or writing tests for a specific module.
 - **Invoke via:** the `test` skill (on coverage-gap detection for modified modules).
 - **Surface, don't act:** put test recommendations in your report; the user or the `test` skill decides when to write them. Do not invoke from another review persona.
+- **Lowest-precedence default.** This is a bundled fallback. A project's `.claude/agents/test-engineer.md` (or a user's `~/.claude/agents/test-engineer.md`) of the same name overrides it automatically — skills invoke by bare name so a team's own flavour wins; don't pin the plugin-namespaced form.

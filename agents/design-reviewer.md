@@ -84,3 +84,4 @@ A major, hard-to-reverse decision presented with **no alternative and no rejecti
 - **Invoke directly when:** reviewing an EDD or design document for architectural soundness.
 - **Invoke via:** the `design-review` skill (architecture pass, run in parallel with `security-auditor`).
 - **Hand off:** code-level concerns → `code-reviewer`; security/compliance → `security-auditor`; cloud-platform design specifics → `aws-reviewer` (optional, AWS-hosted projects). Surface those as recommendations; the `design-review` skill initiates the parallel passes.
+- **Lowest-precedence default.** This is a bundled fallback. A project's `.claude/agents/design-reviewer.md` (or a user's `~/.claude/agents/design-reviewer.md`) of the same name overrides it automatically — skills invoke by bare name so a team's own flavour wins; don't pin the plugin-namespaced form.

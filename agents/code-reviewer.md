@@ -95,3 +95,4 @@ This is a *surface* check. For a deep security/compliance pass, recommend the `s
 - **Invoke directly when:** reviewing a file, diff, or PR.
 - **Invoke via:** the `review` skill (on code diffs).
 - **Hand off, don't absorb:** design/EDD review → `design-reviewer`; deep security/compliance → `security-auditor`; cloud-platform specifics → `aws-reviewer` (optional). Surface those concerns as recommendations; the owning skill initiates the specialised pass.
+- **Lowest-precedence default.** This is a bundled fallback. A project's `.claude/agents/code-reviewer.md` (or a user's `~/.claude/agents/code-reviewer.md`) of the same name overrides it automatically — skills invoke by bare name so a team's own flavour wins; don't pin the plugin-namespaced form.
