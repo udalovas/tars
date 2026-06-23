@@ -174,3 +174,7 @@ tars/
 ```
 
 The repo is **both** a marketplace and the plugin it serves: the `skills/` and `agents/` at the repo root ship together through the same plugin. Further Claude Code assets — `commands/`, `hooks/` — can be added the same way.
+
+## License
+
+Released under the [MIT License](LICENSE) — © 2026 Aleksei Udalov. Use, modify, and redistribute freely; keep the copyright notice.
