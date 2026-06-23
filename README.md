@@ -16,7 +16,7 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 |---|---|---|
 | `refine` | `/refine` | Turns a raw idea or vague ticket into measurable, Jira-ready acceptance criteria via structured dialogue. |
 | `design` | `/design` | Transforms a refined requirement into a validated Engineering Design Document (EDD). |
-| `design-review` | `/design-review` | Runs `code-reviewer` + `security-auditor` over an EDD in parallel and appends a verdict. |
+| `design-review` | `/design-review` | Runs `design-reviewer` + `security-auditor` (plus an optional `aws-reviewer` pass) over an EDD in parallel and appends a verdict. |
 | `plan` | `/plan` | Decomposes an approved EDD into an ordered, verifiable task list. |
 | `implement` | `/implement` | Builds the task list one vertical slice at a time: implement → test → commit. |
 | `test` | `/test` | Runs the suite, auto-fixes mechanical failures, escalates the rest. |
@@ -26,6 +26,20 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments`.
 
 The skills are **project-agnostic**: they carry generic workflow logic and read project-specific details (test/lint commands, design-doc location, coding standards) from each project's own `CLAUDE.md`. Example commands in the skills (npm, etc.) are clearly marked as examples, not assumptions.
+
+## Agents
+
+The review steps fan out to dedicated review agents, bundled at `agents/` and shipped with the plugin. Like the skills, they're **project-agnostic** — each carries a review *framework*, not a stack, and reads the language, conventions, and applicable compliance regimes from the project's `CLAUDE.md` / `.claude/rules/`.
+
+| Agent | Used by | Role |
+|---|---|---|
+| `code-reviewer` | `/review` | Five-dimension review of a code diff or PR. |
+| `design-reviewer` | `/design-review` | Architecture-altitude EDD review, incl. trade-off analysis on hard-to-reverse decisions. |
+| `security-auditor` | `/design-review` | Generic application-security core **+** a self-gating commodities-trading compliance lens (data-protection / market-integrity / AI-regulation). No org specifics — escalation paths come from the project. |
+| `test-engineer` | `/test` | Test strategy and coverage-gap analysis. |
+| `aws-reviewer` | `/design-review`, `/review` | **Optional** AWS Well-Architected lens. Self-declines on non-AWS projects, so it's purely additive. |
+
+These agents enrich the review passes; they are **not** a hard dependency. On a machine where they aren't installed (e.g. a partial manual install), the skills perform the review inline instead.
 
 ## Requirements
 
@@ -37,7 +51,7 @@ The skills are **project-agnostic**: they carry generic workflow logic and read 
 
 These skills use extra capabilities **if present**, and degrade gracefully if not:
 
-- **Review agents** — `design-review` and `test` use `code-reviewer` / `security-auditor` / `test-engineer` agents when the host environment provides them; otherwise they perform the review inline. TARS does not bundle these agents (they tend to be org-specific). Add your own under a project's `.claude/agents/` to get the richer multi-agent passes.
+- **Review agents** — `design-review`, `test`, and `review` use the bundled review agents (see [Agents](#agents)) when present; otherwise they perform the review inline. The agents ship project-agnostic, so a project's own `CLAUDE.md` supplies the stack and compliance specifics. You can still override or extend them under a project's `.claude/agents/`.
 - **Issue tracker** — `refine` can read from / write to an issue tracker (e.g. a `jira` skill) when available; otherwise it hands the requirement block back to you to file.
 
 ## Install
@@ -123,6 +137,12 @@ tars/
 ├── .claude-plugin/
 │   ├── plugin.json            # plugin manifest (name, version, author)
 │   └── marketplace.json       # marketplace listing → makes the repo /plugin-installable
+├── agents/                    # bundled review agents (ship via the plugin)
+│   ├── code-reviewer.md
+│   ├── design-reviewer.md
+│   ├── security-auditor.md
+│   ├── test-engineer.md
+│   └── aws-reviewer.md        # optional — self-gates to AWS-hosted projects
 ├── skills/
 │   ├── refine/
 │   ├── design/                # includes references/ with EDD patterns & dialogue examples
@@ -135,4 +155,4 @@ tars/
 └── README.md
 ```
 
-The repo is **both** a marketplace and the plugin it serves. Other Claude Code assets — `agents/`, `commands/`, `hooks/` — can be added at the repo root and ship through the same plugin.
+The repo is **both** a marketplace and the plugin it serves: the `skills/` and `agents/` at the repo root ship together through the same plugin. Further Claude Code assets — `commands/`, `hooks/` — can be added the same way.
