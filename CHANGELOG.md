@@ -20,6 +20,8 @@ installs pick up changes predictably.
 - CI workflow validating the manifests and every skill/agent frontmatter, plus a
   guard that fails a PR which changes `skills/` or `agents/` without bumping the
   plugin version (so a release never silently reaches no one).
+- Release automation: on merge to `main`, tags `v<version>` and publishes a
+  GitHub Release with notes drawn from this changelog, once per version.
 - This changelog, `.editorconfig`, and plugin discoverability `keywords`.
 
 ## [0.1.0] - 2026-06-23
