@@ -1,0 +1,10 @@
+{
+  "name": "tars",
+  "description": "Portable intelligence for AI agents — skills, prompts, and workflows that travel across projects and machines. Ships an opinionated Claude Code engineering workflow: refine, design, design-review, plan, implement, test, review.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Aleksei Udalov"
+  },
+  "homepage": "https://github.com/udalovas/tars",
+  "repository": "https://github.com/udalovas/tars"
+}
