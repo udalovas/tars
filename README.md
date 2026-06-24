@@ -160,6 +160,7 @@ tars/
 │   └── marketplace.json       # marketplace listing → makes the repo /plugin-installable
 ├── agents/                    # bundled review agents (ship via the plugin)
 │   ├── code-reviewer.md
+│   ├── docs-consistency-reviewer.md
 │   ├── design-reviewer.md
 │   ├── security-auditor.md
 │   ├── test-engineer.md
