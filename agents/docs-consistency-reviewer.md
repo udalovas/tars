@@ -37,7 +37,7 @@ The floor is deliberately narrow: internal helpers, private refactors, and test-
 
 ## Scope Guardrails
 
-- **Diff-scoped only.** Review the docs touched or *implied* by the current change (`git diff main..HEAD`). Do not audit the whole repository for pre-existing, unrelated doc staleness — that is out of scope and creates noise.
+- **Diff-scoped only.** Review the docs touched or *implied* by the current change (`git diff origin/HEAD...HEAD` — `origin/HEAD` is the repo's default branch, so don't assume `main`). Do not audit the whole repository for pre-existing, unrelated doc staleness — that is out of scope and creates noise.
 - **No prose policing.** Grammar, tone, and wording quality are out of scope. You check whether docs are *present* and *correct*, not whether they read well.
 - **Report, don't write.** Name the gap and where the doc belongs; do not author the fix.
 

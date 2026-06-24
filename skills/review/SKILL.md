@@ -28,8 +28,8 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
 1. **Understand the change:**
    ```bash
    git status
-   git log --oneline main..HEAD
-   git diff main..HEAD --stat
+   git log --oneline origin/HEAD..HEAD
+   git diff origin/HEAD...HEAD --stat
    ```
 
 2. **Find the relevant EDD** (if the project keeps them; `docs/EDD/` by convention — check `CLAUDE.md`):
@@ -43,7 +43,7 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
    Verify the change's documentation *before* opening the PR. **Delegate to the `docs-consistency-reviewer` sub-agent when available** — invoke it by bare name via the Agent tool (`subagent_type: "docs-consistency-reviewer"`); a project-local `.claude/agents/docs-consistency-reviewer.md` overrides the bundled default, so never pin the plugin-namespaced form. **If the agent isn't available, perform the check inline** — the skill must work on a clean machine with no custom agents installed.
 
    Give it the change and the project context:
-   - the diff: `git diff main..HEAD`
+   - the diff: `git diff origin/HEAD...HEAD` (`origin/HEAD` is the repo's default branch — don't assume `main`)
    - project context: the path to `CLAUDE.md` (and any standards it references)
 
    It checks two things: **(a) coverage** — new public functionality (APIs, CLI flags, config options, env vars, breaking changes) is documented to the project's standard, read from `CLAUDE.md` / `.claude/rules/` / existing docs, else a built-in floor checklist; **(b) consistency** — the diff hasn't left existing docs stale or contradictory (renamed flags, changed signatures, drifted tables, outdated claims). Scope is the current diff only — not a full-repo docs audit. It reports gaps; it does not write docs.
