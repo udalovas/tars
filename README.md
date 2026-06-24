@@ -20,7 +20,7 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 | `plan` | `/plan` | Decomposes an approved EDD into an ordered, verifiable task list. |
 | `implement` | `/implement` | Builds the task list one vertical slice at a time: implement → test → commit. |
 | `test` | `/test` | Runs the suite, auto-fixes mechanical failures, escalates the rest. |
-| `review` | `/review` | Opens a PR with a clean description and responds to review comments. |
+| `review` | `/review` | Runs a docs-consistency gate, then opens a PR with a clean description and responds to review comments. |
 | `resolve-pr-comments` | `/resolve-pr-comments` | Classifies PR comments by impact, fixes major/critical, replies with the commit reference. |
 
 Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments`.
@@ -34,6 +34,7 @@ The review steps fan out to dedicated review agents, bundled at `agents/` and sh
 | Agent | Used by | Role |
 |---|---|---|
 | `code-reviewer` | `/review` † | Five-dimension review of a code diff or PR. |
+| `docs-consistency-reviewer` | `/review` | Pre-PR docs gate — checks new functionality is documented to the project's standard and that the diff hasn't left existing docs stale or contradictory. |
 | `design-reviewer` | `/design-review` | Architecture-altitude EDD review, incl. trade-off analysis on hard-to-reverse decisions. |
 | `security-auditor` | `/design-review` | Generic application-security core **+** a self-gating commodities-trading compliance lens (data-protection / market-integrity / AI-regulation). No org specifics — escalation paths come from the project. |
 | `test-engineer` | `/test` | Test strategy and coverage-gap analysis. |
