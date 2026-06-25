@@ -9,6 +9,19 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-24
+
+### Added
+- `docs-consistency-reviewer` agent — a pre-PR docs gate that checks new
+  functionality is documented to the project's standard (coverage) and that the
+  change hasn't left existing docs stale or contradictory (consistency).
+  Project-agnostic, diff-scoped, and report-only, with a built-in floor
+  checklist when a project documents no conventions.
+- The `review` skill now runs the docs-consistency gate in PR creation
+  (Sub-flow A) before opening the PR — delegating to the agent when available
+  and falling back to an inline check otherwise — and surfaces findings for the
+  engineer to confirm rather than auto-blocking.
+
 ## [0.2.0] - 2026-06-23
 
 ### Added
@@ -34,6 +47,7 @@ installs pick up changes predictably.
 - Project-agnostic skill logic that reads stack and standards from each
   project's own `CLAUDE.md`.
 
-[Unreleased]: https://github.com/udalovas/tars/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/udalovas/tars/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/udalovas/tars/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/udalovas/tars/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/udalovas/tars/releases/tag/v0.1.0
