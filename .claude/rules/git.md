@@ -10,7 +10,7 @@ Trunk-based development — `main` is the trunk. Branches are short-lived and me
 
 **Types:** `feature`, `bugfix`, `hotfix`, `chore`, `docs`
 
-Examples: `feature/add-trade-leg`, `bugfix/correct-trade-leg-side`, `chore/cleanup-deps`
+Examples: `feature/add-docs-gate`, `bugfix/fix-version-bump-base-ref`, `chore/cleanup-deps`
 
 For urgent fixes without a ticket, omit the ticket segment: `hotfix/fix-critical-auth-bug`
 
@@ -25,7 +25,7 @@ For urgent fixes without a ticket, omit the ticket segment: `hotfix/fix-critical
 The ticket number is optional — omit it only when there is no associated ticket (e.g. an urgent hotfix).
 
 Examples:
-- `feat: add forward instrument sub-types`
-- `fix: correct trade leg side calculation`
+- `feat: add docs-consistency-reviewer agent`
+- `fix: correct version-bump guard base ref`
 
 Never add `Co-Authored-By` trailers to commit messages.
