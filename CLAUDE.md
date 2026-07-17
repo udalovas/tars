@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-TARS is a **Claude Code plugin that is also its own marketplace**. There is no application to build or run — the deliverables are Markdown assets (skills and agents) that install into other people's Claude Code environments and travel across their projects. The repo dogfoods its own workflow: changes here are meant to flow through `/refine → /design → /design-review → /plan → /implement → /test → /review → /resolve-pr-comments`.
+TARS is a **Claude Code plugin that is also its own marketplace**. There is no application to build or run — the deliverables are Markdown assets (skills and agents) that install into other people's Claude Code environments and travel across their projects. The repo dogfoods its own workflow: changes here are meant to flow through `/refine → /design → /design-review → /plan → /implement → /test → /review → /resolve-pr-comments → /retro`.
 
 The product is an opinionated SDLC workflow encoded as skills, plus bundled review agents the review-related skills fan out to.
 

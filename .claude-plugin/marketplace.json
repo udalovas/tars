@@ -7,7 +7,7 @@
     {
       "name": "tars",
       "source": "./",
-      "description": "Portable intelligence for AI agents — an opinionated Claude Code engineering workflow (refine → design → plan → implement → test → review)."
+      "description": "Portable intelligence for AI agents — an opinionated Claude Code engineering workflow (refine → design → design-review → plan → implement → test → review → resolve-pr-comments → retro)."
     }
   ]
 }

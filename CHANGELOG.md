@@ -9,6 +9,18 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-17
+
+### Added
+- `retro` skill — end-of-session retrospective, the new final step of the
+  workflow chain (`… → /resolve-pr-comments → /retro`). Mines the finished
+  session for friction through three lenses (key decisions, rule/standard
+  gaps that forced clarifications or corrections, context-gathering
+  inefficiencies), curates at most 5 evidence-linked findings, and proposes
+  diff-ready improvements to the consuming project's `CLAUDE.md`,
+  `.claude/rules/`, and docs. Applies only engineer-approved edits, to
+  project files only; the report itself stays chat-only.
+
 ## [0.2.1] - 2026-06-24
 
 ### Added
@@ -47,7 +59,8 @@ installs pick up changes predictably.
 - Project-agnostic skill logic that reads stack and standards from each
   project's own `CLAUDE.md`.
 
-[Unreleased]: https://github.com/udalovas/tars/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/udalovas/tars/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/udalovas/tars/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/udalovas/tars/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/udalovas/tars/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/udalovas/tars/releases/tag/v0.1.0
