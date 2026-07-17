@@ -22,8 +22,9 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 | `test` | `/test` | Runs the suite, auto-fixes mechanical failures, escalates the rest. |
 | `review` | `/review` | Runs a docs-consistency gate, then opens a PR with a clean description and responds to review comments. |
 | `resolve-pr-comments` | `/resolve-pr-comments` | Classifies PR comments by impact, fixes major/critical, replies with the commit reference. |
+| `retro` | `/retro` | End-of-session retrospective — turns observed friction into confirmed, diff-ready improvements to the project's rules and docs. |
 
-Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments`.
+Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments` → `/retro`.
 
 The skills are **project-agnostic**: they carry generic workflow logic and read project-specific details (test/lint commands, design-doc location, coding standards) from each project's own `CLAUDE.md`. Example commands in the skills (npm, etc.) are clearly marked as examples, not assumptions.
 
@@ -173,7 +174,8 @@ tars/
 │   ├── implement/
 │   ├── test/
 │   ├── review/
-│   └── resolve-pr-comments/
+│   ├── resolve-pr-comments/
+│   └── retro/
 └── README.md
 ```
 
