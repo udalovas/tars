@@ -1,6 +1,6 @@
 {
   "name": "tars",
-  "description": "Portable intelligence for AI agents — skills, prompts, and workflows that travel across projects and machines. Ships an opinionated Claude Code engineering workflow: refine, design, design-review, plan, implement, test, review, retro.",
+  "description": "Portable intelligence for AI agents — skills, prompts, and workflows that travel across projects and machines. Ships an opinionated Claude Code engineering workflow: refine, design, design-review, plan, implement, test, review, resolve-pr-comments, retro.",
   "version": "0.3.0",
   "license": "MIT",
   "keywords": [

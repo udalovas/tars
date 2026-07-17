@@ -11,7 +11,7 @@ The ideal to measure against: **after the design is approved and reviewed, imple
 
 ## When to Use
 
-- As the **final step** of the workflow chain, after `/resolve-pr-comments` — the PR has landed and review comments are addressed
+- As the **final step** of the workflow chain — the PR has merged, with review comments resolved beforehand (typically via `/resolve-pr-comments` while the PR was still open)
 - After any session with noticeable friction: repeated clarifications, style or pattern corrections during implementation or PR review, extensive searching to reconstruct context the docs should have carried
 - When the same question or correction has come up more than once across sessions
 
