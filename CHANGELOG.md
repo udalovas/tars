@@ -9,6 +9,18 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-17
+
+### Added
+- `retro` skill — end-of-session retrospective, the new final step of the
+  workflow chain (`… → /resolve-pr-comments → /retro`). Mines the finished
+  session for friction through three lenses (key decisions, rule/standard
+  gaps that forced clarifications or corrections, context-gathering
+  inefficiencies), curates at most 5 evidence-linked findings, and proposes
+  diff-ready improvements to the consuming project's `CLAUDE.md`,
+  `.claude/rules/`, and docs. Applies only engineer-approved edits, to
+  project files only; the report itself stays chat-only.
+
 ## [0.2.1] - 2026-06-24
 
 ### Added
