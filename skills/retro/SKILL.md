@@ -24,7 +24,7 @@ The ideal to measure against: **after the design is approved and reviewed, imple
 
 ### Step 1: Confirm the Session Is Closed
 
-Check that the workflow has actually finished (PR merged or approved, comments resolved). If it hasn't, say so and offer to run the retro once it has. A retro on an unfinished session misses the most valuable evidence — what the PR review caught.
+Check that the workflow has actually finished (PR merged, review comments resolved). If it hasn't, say so and offer to run the retro once it has. A retro on an unfinished session misses the most valuable evidence — what the PR review caught.
 
 ### Step 2: Scan the Session Through Three Lenses
 
