@@ -120,6 +120,26 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 | Type errors after code-gen change | Re-run the code generation step (see `CLAUDE.md`), then re-run tests |
 | Port in use | Check `CLAUDE.md` for the stop command to kill local dev processes |
 
+## Orchestration Mode
+
+When `/implement` runs as a parallel worktree stream, `/test` is the **tests + build + lint
+component of the self-check gate** that runs before a diff is surfaced (see the `implement`
+skill's Orchestration Mode). Two things matter when invoked as a gate component:
+
+- **Return a structured pass/fail**, not just a log, so `/implement` can compose the result.
+  Report each check as `pass`, `fail`, or `not run` **with the reason** (e.g. the project
+  defines no build step in `CLAUDE.md`). A check that can't run is reported as **not run —
+  never silently treated as a pass.**
+- **Auto-fix stays bounded** exactly as above — mechanical fixes only, max 2 attempts, then
+  escalate. `/test` reports the result; whether to surface the diff is the caller's decision.
+
+Standalone behavior is unchanged: run directly, `/test` reports and auto-fixes as described
+above. Example structured result:
+
+```
+gate: tests pass ✓ · lint pass ✓ · build not run (no build step defined in CLAUDE.md)
+```
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -142,3 +162,4 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 - [ ] Escalated failures include file:line, error text, and suggested next step
 - [ ] Newly written modules without tests trigger a coverage gap analysis
 - [ ] Type checking passes (not just runtime tests)
+- [ ] As a gate component: result reported as structured pass/fail per check, with any check that couldn't run marked "not run"
