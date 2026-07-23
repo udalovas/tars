@@ -118,6 +118,69 @@ Summary:
 Next: run `/review` to create the PR.
 ```
 
+> In **orchestration mode** (parallel worktree streams), the finish is the self-check gate
+> instead of this handoff — see [Orchestration Mode](#orchestration-mode) below.
+
+## Orchestration Mode
+
+`/implement` can run as one **stream** in a fleet an engineer orchestrates in parallel — each
+stream in its own git worktree, on its own branch, driven from its own Claude session, all
+keyed by a single readable **slug**. This lets one engineer keep 5–10 streams moving and
+review final diffs instead of keystrokes. One-time project setup (worktrees, auto-mode
+permissions) and the full fleet model live in the orchestration guide that ships with TARS
+(`docs/ORCHESTRATION.md`); the pointer is soft — everything this skill needs is below.
+
+When running as a worktree stream, three things change:
+
+- **Stay in the stream's worktree.** Use the stream's slug for the branch (`<type>/<slug>`)
+  and for commits; never touch another stream's worktree.
+- **Auto-mode posture.** Proceed through the increment cycle without pausing for per-step
+  confirmation. You still stop on a genuinely blocked task (see [Handling Blocked
+  Tasks](#handling-blocked-tasks)) — auto mode speeds the routine, it doesn't suppress
+  escalation.
+- **The finish is the self-check gate**, not the "run `/review`" handoff.
+
+### The self-check gate
+
+After all tasks are complete, run this in order (fail-fast) **before surfacing anything** to
+the engineer:
+
+1. **Tests + build + lint** — via the `test` skill, which reads the project's actual
+   commands from `CLAUDE.md`. Any command the project doesn't define is **reported as "not
+   run", never silently passed.**
+2. **`code-reviewer`** on the cumulative stream diff. Invoke it by **bare name** (Agent tool
+   / `subagent_type: "code-reviewer"`) so a project-local `.claude/agents/code-reviewer.md`
+   overrides the bundled default — never pin the plugin-namespaced form, never overwrite a
+   project-local agent. **If no such agent is available, perform the code review inline** —
+   the gate must work on a clean machine with no bundled agents.
+
+Severity → gate: a `code-reviewer` **Critical** finding blocks; **Important** and
+**Suggestions** are surfaced in the handoff but do not block.
+
+**On a blocking failure** (a required check failed, or a Critical finding): auto-fix and
+re-run the whole gate, **max 2 attempts** (mirrors [Rule 3](#rule-3-never-break-the-build)).
+Still failing → escalate that stream with full context and **do not surface the diff**.
+
+`security-auditor` is **not** in the gate — it is opt-in. Invoke it (by bare name) only when
+the engineer requests a security/compliance pass for the stream.
+
+### Ready-for-review handoff
+
+When the gate is green, surface exactly one summary — the engineer's cue to review the final
+diff:
+
+```
+✅ Stream <slug> — gate green
+   tests ✓  build ✓  lint ✓  code-reviewer ✓ (N suggestions)
+   Diff: <N> files, +<add> −<del>  ·  branch <type>/<slug>
+   Review the diff, or run /review to open the PR.
+   (security-auditor not run — request it if this stream needs a security pass)
+```
+
+**Graceful degradation:** with no worktree and no bundled `code-reviewer`, `/implement` runs
+exactly as the linear flow above — the gate still runs (tests+build+lint inline, code review
+inline), single-stream, and the standard [Finishing Up](#finishing-up) handoff applies.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -134,6 +197,7 @@ Next: run `/review` to create the PR.
 - Implementing features not in the task list (scope creep)
 - Patterns explicitly banned by the project's standards (e.g. `any` types or stray debug logging in a TS project)
 - Starting the next task before the current one's verification command passes
+- Surfacing a stream's diff as ready when the self-check gate did not pass cleanly (orchestration mode)
 
 ## Verification
 
@@ -148,3 +212,4 @@ After all tasks:
 - [ ] All TodoWrite tasks marked complete
 - [ ] Full test suite passes
 - [ ] Engineer prompted to run `/review`
+- [ ] Orchestration mode: self-check gate green (tests+build+lint+`code-reviewer`, or checks that couldn't run reported) before the diff was surfaced; `security-auditor` noted as not run
