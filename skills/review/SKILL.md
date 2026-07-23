@@ -122,6 +122,19 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
 
 This keeps the PR conversation readable and reviewers informed.
 
+## Orchestration Mode
+
+When a stream reaches `/review` via orchestration mode, the `code-reviewer` pass has
+**already run inside `/implement`'s self-check gate** — so PR creation does **not** re-invoke
+it. The gate *is* the automated code review; `/review` opens the PR on a diff the engineer
+has already seen go green. Everything else is unchanged: the docs-consistency gate (Sub-flow
+A, Step 3) still runs, and the PR flow is identical.
+
+This doesn't move the boundary above — `/review` still never *conducts* a code review
+itself. In the linear flow the review happens when a human requests it; in orchestration mode
+it happened in the gate. Either way, `/review` creates and responds to PRs; it does not
+perform the review.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -145,6 +158,7 @@ This keeps the PR conversation readable and reviewers informed.
 - [ ] Body has exactly three sections: Summary, EDD Reference, Test plan
 - [ ] Summary bullets describe *why*, not *what*
 - [ ] PR URL returned to engineer
+- [ ] Orchestration mode: `code-reviewer` not re-run during PR creation (it already ran in the gate)
 
 **Review Response:**
 - [ ] Every open comment has a reply (auto-fix acknowledgment or flag)
