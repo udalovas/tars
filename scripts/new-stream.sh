@@ -55,6 +55,8 @@ if git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1; then
   base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
 fi
 
+# Ensure the worktrees parent dir exists — older git won't create leading dirs.
+mkdir -p "$(dirname "$worktree")"
 git worktree add -b "$branch" "$worktree" "$base"
 
 echo "✓ stream '${slug}' ready"

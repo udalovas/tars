@@ -156,6 +156,7 @@ new-stream() {
   git show-ref --quiet --verify "refs/remotes/origin/${branch}" && { echo "branch exists on origin: $branch" >&2; return 1; }
   base="HEAD"; git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1 && \
     base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+  mkdir -p "$(dirname "$worktree")"   # older git won't create leading dirs
   git worktree add -b "$branch" "$worktree" "$base"
 }
 ```
