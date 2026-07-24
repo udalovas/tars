@@ -104,7 +104,7 @@ surfaced.
 | Step | Source | Blocks? | If it can't run |
 |---|---|---|---|
 | Tests | project `CLAUDE.md` command, via `/test` | Yes | Report `not run: no test command configured` |
-| Build | project `CLAUDE.md` command | Yes | Report `not run: no build step` |
+| Build | project `CLAUDE.md` command, via `/test` | Yes | Report `not run: no build step` |
 | Lint / type-check | project `CLAUDE.md` command, via `/test` | Yes | Report `not run: no lint configured` |
 | `code-reviewer` | bare-name agent; **inline fallback** if absent | Critical only | Perform review inline |
 

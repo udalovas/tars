@@ -171,7 +171,7 @@ diff:
 
 ```
 ✅ Stream <slug> — gate green
-   tests ✓  build ✓  lint ✓  code-reviewer ✓ (N suggestions)
+   tests ✓  lint ✓  build not run (none defined)  code-reviewer ✓ (N suggestions)
    Diff: <N> files, +<add> −<del>  ·  branch <type>/<slug>
    Review the diff, or run /review to open the PR.
    (security-auditor not run — request it if this stream needs a security pass)

@@ -16,7 +16,7 @@ Run the test suite. Auto-fix what can be fixed without judgment. Escalate the re
 
 ## Test Infrastructure
 
-**Always check `CLAUDE.md` first for the project's actual test, lint, and type-check commands** — they vary by stack. Use whatever the project defines; the commands below are only illustrative examples for a Node/npm workspace.
+**Always check `CLAUDE.md` first for the project's actual test, build, lint, and type-check commands** — they vary by stack. Use whatever the project defines; the commands below are only illustrative examples for a Node/npm workspace.
 
 ```bash
 # Full suite            (e.g. npm test · pytest · go test ./... · cargo test)
@@ -27,7 +27,12 @@ npm run test -w packages/<package-name>
 
 # Type checking only    (e.g. npm run test:tsc · mypy · tsc --noEmit)
 npm run test:tsc
+
+# Build, when the project defines one (e.g. npm run build · tsc -b · go build ./... · cargo build)
+npm run build
 ```
+
+A **build** step is part of verification when the project defines one — run it alongside tests and lint, and report it the same way. Build failures are escalated, not auto-fixed (they need a code change, not a mechanical one).
 
 If the project uses local infrastructure (databases, queues, servers), the test command often starts it via a pre-test hook. If you suspect infrastructure issues, see the Troubleshooting section.
 

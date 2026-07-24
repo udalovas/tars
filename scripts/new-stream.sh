@@ -25,6 +25,12 @@ if ! printf '%s' "$slug" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$'; then
   exit 1
 fi
 
+# The type must be one of the documented branch prefixes (see .claude/rules/git.md).
+case "$type" in
+  feature|bugfix|hotfix|chore|docs) ;;
+  *) echo "✗ type must be one of feature|bugfix|hotfix|chore|docs: got '$type'" >&2; exit 1 ;;
+esac
+
 root="$(git rev-parse --show-toplevel)"
 repo="$(basename "$root")"
 worktree="$(dirname "$root")/${repo}-worktrees/${slug}"
@@ -36,6 +42,10 @@ if [ -e "$worktree" ]; then
 fi
 if git show-ref --quiet --verify "refs/heads/${branch}"; then
   echo "✗ branch already exists: $branch" >&2
+  exit 1
+fi
+if git show-ref --quiet --verify "refs/remotes/origin/${branch}"; then
+  echo "✗ branch already exists on origin: origin/${branch}" >&2
   exit 1
 fi
 
