@@ -127,9 +127,9 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 
 ## Orchestration Mode
 
-When `/implement` runs as a parallel worktree stream, `/test` is the **tests + build + lint
-component of the self-check gate** that runs before a diff is surfaced (see the `implement`
-skill's Orchestration Mode). Two things matter when invoked as a gate component:
+When `/implement` runs as a parallel worktree stream, `/test` is the
+**tests + build + lint component of the self-check gate** that runs before a diff is
+surfaced (see the `implement` skill's Orchestration Mode). Two things matter when invoked as a gate component:
 
 - **Return a structured pass/fail**, not just a log, so `/implement` can compose the result.
   Report each check as `pass`, `fail`, or `not run` **with the reason** (e.g. the project

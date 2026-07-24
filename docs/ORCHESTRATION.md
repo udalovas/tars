@@ -154,8 +154,9 @@ new-stream() {
   [ -e "$worktree" ] && { echo "worktree exists: $worktree" >&2; return 1; }
   git show-ref --quiet --verify "refs/heads/${branch}" && { echo "branch exists: $branch" >&2; return 1; }
   git show-ref --quiet --verify "refs/remotes/origin/${branch}" && { echo "branch exists on origin: $branch" >&2; return 1; }
-  base="HEAD"; git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1 && \
-    base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+  if git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1
+  then base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+  else base="$(git -C "$root" rev-parse HEAD)"; fi   # main worktree HEAD, not caller's
   mkdir -p "$(dirname "$worktree")"   # older git won't create leading dirs
   git worktree add -b "$branch" "$worktree" "$base"
 }

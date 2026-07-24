@@ -55,10 +55,12 @@ if git show-ref --quiet --verify "refs/remotes/origin/${branch}"; then
   exit 1
 fi
 
-# Base new streams on the default branch when it is known, else current HEAD.
-base="HEAD"
+# Base new streams on origin's default branch when known, else the MAIN worktree's HEAD
+# — never the current worktree's HEAD, which may be another stream's feature branch.
 if git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1; then
   base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+else
+  base="$(git -C "$root" rev-parse HEAD)"
 fi
 
 # Ensure the worktrees parent dir exists — older git won't create leading dirs.
