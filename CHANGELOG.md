@@ -9,6 +9,29 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-23
+
+### Added
+- Orchestration mode — run the existing `/implement`, `/test`, and `/review`
+  skills as parallel, self-checked worktree **streams**, so one engineer can
+  dispatch 5–10 at once and review gate-green final diffs instead of keystrokes.
+  - `/implement` gains an auto-mode posture and owns a **self-check gate**
+    (tests + build + lint + automated `code-reviewer`) that must pass before a
+    diff is surfaced; blocking failures auto-fix and re-run (max 2 attempts)
+    then escalate. Checks the project doesn't define are reported as "not run",
+    never silently passed. `security-auditor` stays opt-in.
+  - `/test` documents its role as the tests+build+lint gate component and
+    returns a structured per-check pass/fail.
+  - `/review` notes that `code-reviewer` already ran in the gate, so PR
+    creation doesn't re-invoke it.
+  - New `docs/ORCHESTRATION.md` onboarding guide (stream/slug conventions,
+    canonical gate definition, `.claude/settings.json` auto-mode snippet,
+    copy-paste `new-stream` worktree helper, enable checklist) and a mirrored
+    `scripts/new-stream.sh`.
+
+  Purely additive — the skills still work single-stream and degrade gracefully
+  with no worktrees or bundled agents.
+
 ## [0.3.0] - 2026-07-17
 
 ### Added
@@ -59,7 +82,8 @@ installs pick up changes predictably.
 - Project-agnostic skill logic that reads stack and standards from each
   project's own `CLAUDE.md`.
 
-[Unreleased]: https://github.com/udalovas/tars/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/udalovas/tars/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/udalovas/tars/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/udalovas/tars/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/udalovas/tars/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/udalovas/tars/compare/v0.1.0...v0.2.0

@@ -16,7 +16,7 @@ Run the test suite. Auto-fix what can be fixed without judgment. Escalate the re
 
 ## Test Infrastructure
 
-**Always check `CLAUDE.md` first for the project's actual test, lint, and type-check commands** — they vary by stack. Use whatever the project defines; the commands below are only illustrative examples for a Node/npm workspace.
+**Always check `CLAUDE.md` first for the project's actual test, build, lint, and type-check commands** — they vary by stack. Use whatever the project defines; the commands below are only illustrative examples for a Node/npm workspace.
 
 ```bash
 # Full suite            (e.g. npm test · pytest · go test ./... · cargo test)
@@ -27,7 +27,12 @@ npm run test -w packages/<package-name>
 
 # Type checking only    (e.g. npm run test:tsc · mypy · tsc --noEmit)
 npm run test:tsc
+
+# Build, when the project defines one (e.g. npm run build · tsc -b · go build ./... · cargo build)
+npm run build
 ```
+
+A **build** step is part of verification when the project defines one — run it alongside tests and lint, and report it the same way. Build failures are escalated, not auto-fixed (they need a code change, not a mechanical one).
 
 If the project uses local infrastructure (databases, queues, servers), the test command often starts it via a pre-test hook. If you suspect infrastructure issues, see the Troubleshooting section.
 
@@ -120,6 +125,26 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 | Type errors after code-gen change | Re-run the code generation step (see `CLAUDE.md`), then re-run tests |
 | Port in use | Check `CLAUDE.md` for the stop command to kill local dev processes |
 
+## Orchestration Mode
+
+When `/implement` runs as a parallel worktree stream, `/test` is the
+**tests + build + lint component of the self-check gate** that runs before a diff is
+surfaced (see the `implement` skill's Orchestration Mode). Two things matter when invoked as a gate component:
+
+- **Return a structured pass/fail**, not just a log, so `/implement` can compose the result.
+  Report each check as `pass`, `fail`, or `not run` **with the reason** (e.g. the project
+  defines no build step in `CLAUDE.md`). A check that can't run is reported as **not run —
+  never silently treated as a pass.**
+- **Auto-fix stays bounded** exactly as above — mechanical fixes only, max 2 attempts, then
+  escalate. `/test` reports the result; whether to surface the diff is the caller's decision.
+
+Standalone behavior is unchanged: run directly, `/test` reports and auto-fixes as described
+above. Example structured result:
+
+```
+gate: tests pass ✓ · lint pass ✓ · build not run (no build step defined in CLAUDE.md)
+```
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -142,3 +167,4 @@ Do not treat "no tests, no failures" as a pass for newly written code.
 - [ ] Escalated failures include file:line, error text, and suggested next step
 - [ ] Newly written modules without tests trigger a coverage gap analysis
 - [ ] Type checking passes (not just runtime tests)
+- [ ] As a gate component: result reported as structured pass/fail per check, with any check that couldn't run marked "not run"
