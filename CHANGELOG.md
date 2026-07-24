@@ -28,7 +28,6 @@ installs pick up changes predictably.
     canonical gate definition, `.claude/settings.json` auto-mode snippet,
     copy-paste `new-stream` worktree helper, enable checklist) and a mirrored
     `scripts/new-stream.sh`.
-  - `docs/EDD/001-fleet-orchestration.md` design doc (establishes `docs/EDD/`).
 
   Purely additive — the skills still work single-stream and degrade gracefully
   with no worktrees or bundled agents.
