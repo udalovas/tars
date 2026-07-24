@@ -178,8 +178,9 @@ diff:
 ```
 
 **Graceful degradation:** with no worktree and no bundled `code-reviewer`, `/implement` runs
-exactly as the linear flow above — the gate still runs (tests+build+lint inline, code review
-inline), single-stream, and the standard [Finishing Up](#finishing-up) handoff applies.
+exactly as the linear flow above — the gate still runs (tests+build+lint via `/test`, code
+review performed inline), single-stream, and the standard [Finishing Up](#finishing-up)
+handoff applies.
 
 ## Common Rationalizations
 

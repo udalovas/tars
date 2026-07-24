@@ -31,7 +31,13 @@ case "$type" in
   *) echo "✗ type must be one of feature|bugfix|hotfix|chore|docs: got '$type'" >&2; exit 1 ;;
 esac
 
-root="$(git rev-parse --show-toplevel)"
+# Resolve the MAIN worktree (first `git worktree list` entry) so the sibling worktrees
+# dir is correct even when run from inside another stream's worktree.
+root="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"
+if [ -z "$root" ]; then
+  echo "✗ not inside a git repository" >&2
+  exit 1
+fi
 repo="$(basename "$root")"
 worktree="$(dirname "$root")/${repo}-worktrees/${slug}"
 branch="${type}/${slug}"

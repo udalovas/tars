@@ -147,8 +147,8 @@ new-stream() {
   case "$slug" in *[!a-z0-9-]*|-*|*-|*--*) echo "slug must be kebab-case" >&2; return 1;; esac
   case "$type" in feature|bugfix|hotfix|chore|docs) ;; *) echo "type must be feature|bugfix|hotfix|chore|docs" >&2; return 1;; esac
   local root repo worktree branch base
-  root="$(git rev-parse --show-toplevel)" || return 1
-  repo="$(basename "$root")"
+  root="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"; [ -n "$root" ] || return 1
+  repo="$(basename "$root")"   # main worktree name, correct even from inside a worktree
   worktree="$(dirname "$root")/${repo}-worktrees/${slug}"
   branch="${type}/${slug}"
   [ -e "$worktree" ] && { echo "worktree exists: $worktree" >&2; return 1; }
