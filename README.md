@@ -57,6 +57,12 @@ plugin    agents/<name>.md  (TARS)       ← fallback default
 
 So if your team already has its own `test-engineer` — or any same-named agent — **drop it in the project's `.claude/agents/` and it transparently takes over**. No configuration, and nothing in TARS is touched or overwritten; the bundled version simply stops being selected. The agents ship with bare (un-namespaced) names precisely so this override works, and the skills always invoke them by bare name rather than pinning the plugin-namespaced form. To extend rather than replace, copy the bundled agent into `.claude/agents/` and edit your copy.
 
+## Orchestration mode
+
+The same skills also run in a **parallel, self-checked** mode: one engineer dispatches 5–10 streams at once — each in its own git worktree, on its own branch, in its own Claude session, all keyed by a single readable slug. Each stream runs `/implement` in auto mode, and Claude runs a **self-check gate** (tests · build · lint · automated `code-reviewer`) before you see anything — so you review gate-green **final diffs**, not keystrokes, and a backlog that used to take the team weeks becomes one engineer's afternoon of orchestration.
+
+It's purely additive — skip the setup and every skill still works single-stream. See the **[Orchestration guide](docs/ORCHESTRATION.md)** for the one-time setup (worktree helper + auto-mode permissions), the canonical gate definition, and the enable checklist.
+
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
