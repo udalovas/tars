@@ -25,9 +25,9 @@ installs pick up changes predictably.
   - `/review` notes that `code-reviewer` already ran in the gate, so PR
     creation doesn't re-invoke it.
   - New `docs/ORCHESTRATION.md` onboarding guide (stream/slug conventions,
-    canonical gate definition, `.claude/settings.json` auto-mode snippet,
-    copy-paste `new-stream` worktree helper, enable checklist) and a mirrored
-    `scripts/new-stream.sh`.
+    canonical gate definition, auto-mode permission guidance, an optional
+    Stop-hook template that makes the gate deterministic, copy-paste `new-stream`
+    worktree helper, enable checklist) and a mirrored `scripts/new-stream.sh`.
 
   Purely additive — the skills still work single-stream and degrade gracefully
   with no worktrees or bundled agents.

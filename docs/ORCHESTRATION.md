@@ -87,38 +87,54 @@ Rules:
 
 ## One-time setup
 
-### 1. Permissions & auto-accept
+### 1. Permissions posture for unattended streams
 
-Auto mode is what lets a stream run the implement→gate loop unattended. It has two parts, and
-**where each lives matters**:
+A stream runs the implement→gate loop unattended, so it needs a permission posture that doesn't
+stop on every action. Anthropic recommends **auto mode** for exactly this: a classifier reviews
+each command and blocks the risky ones — scope escalation, unknown infrastructure,
+hostile-content-driven actions — while routine work proceeds. It's the best fit here and is
+**more portable** than a hand-maintained allow-list, because you don't have to enumerate your
+project's commands.
 
-- **Auto-accept edits — per user, not committed.** Put `defaultMode: acceptEdits` in your
-  personal `.claude/settings.local.json` (git-ignored). This is an individual opt-in — don't
-  commit it to the shared `.claude/settings.json`, or you silently flip the whole team to
-  auto-accept, including teammates who never run streams.
-- **Command allow-list — safe to share.** The `allow` rules can live in the committed
-  `.claude/settings.json` so the team shares one boundary. **Allow only the specific commands
-  the gate and worktree flow need — never a blanket bypass, never `bypassPermissions`.**
+Launch each stream's session in auto mode:
 
-> Template — replace the example `Bash(...)` rules with your project's real test / build /
-> lint commands, and confirm the keys against the
-> [Claude Code settings docs](https://docs.anthropic.com/en/docs/claude-code/settings).
+```bash
+claude --permission-mode auto      # run inside the stream's worktree
+```
 
-`.claude/settings.local.json` (per user, git-ignored):
+Add guardrails for anything the classifier shouldn't wave through (confirm keys against the
+[Claude Code settings docs](https://code.claude.com/docs/en/settings) for your version):
 
 ```jsonc
+// .claude/settings.json  (shared, committed)
 {
-  // Auto-accept file edits so your streams don't pause on every write.
-  "permissions": { "defaultMode": "acceptEdits" }
+  "autoMode": {
+    // Plain-prose deny-list of things auto mode must never do on its own.
+    "soft_deny": ["$defaults", "Never run a deploy or destructive command"]
+  }
 }
 ```
 
-`.claude/settings.json` (shared, committed) — the command boundary:
+**Alternative — explicit allow-list (`acceptEdits` + rules).** If your team prefers a static,
+auditable boundary over the classifier, use accept-edits plus an allow-list — but split the two
+across files so you don't change the whole team's default:
+
+- **Auto-accept edits — per user, not committed.** `defaultMode: acceptEdits` in your personal
+  `.claude/settings.local.json` (git-ignored). Committing it to the shared `settings.json`
+  silently flips every teammate to auto-accept, including those who never run streams.
+- **Command allow-list — safe to share.** The `allow` rules can live in the committed
+  `.claude/settings.json`. Allow only what the gate and worktree flow need — never a blanket
+  bypass, never `bypassPermissions`.
 
 ```jsonc
+// .claude/settings.local.json  (per user, git-ignored)
+{ "permissions": { "defaultMode": "acceptEdits" } }
+```
+
+```jsonc
+// .claude/settings.json  (shared, committed) — the command boundary
 {
   "permissions": {
-    // Pre-approve ONLY what the gate and worktree flow need.
     // "<cmd>:*" is a trailing wildcard (valid only at the end of the rule).
     "allow": [
       "Bash(git worktree add:*)",  // create stream worktrees — NOT remove/prune
@@ -130,10 +146,8 @@ Auto mode is what lets a stream run the implement→gate loop unattended. It has
 }
 ```
 
-Keep the allow-list tight — it is the safety boundary that makes unattended runs safe. Note it
-grants `git worktree add`, not the destructive `git worktree remove` / `prune` (those stay
-behind a prompt). Do not add credential, network, or destructive commands. Secrets stay out of
-scope — use your approved secrets manager, never plaintext in settings.
+Either posture: keep the boundary tight, never add credential / network / destructive commands,
+and keep secrets out of settings — use your approved secrets manager, never plaintext.
 
 ### 2. The `new-stream` helper
 
@@ -167,6 +181,44 @@ new-stream() {
 > their path (plugins install skills, not scripts), so the copy-paste function above is the
 > supported form.
 
+### 3. (Optional) Enforce the gate deterministically with a Stop hook
+
+The self-check gate is defined in the skills, so it is **advisory** — a stream follows it
+because it is instructed to. To make it a gate a run *cannot* skip, add a
+[Stop hook](https://code.claude.com/docs/en/hooks): the script runs when a turn tries to end,
+and a non-zero exit keeps the turn open until the checks pass. That is the difference between a
+gate you trust and one the harness enforces.
+
+```jsonc
+// .claude/settings.json
+{
+  "hooks": {
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": ".claude/hooks/gate.sh", "timeout": 600 } ] }
+    ]
+  }
+}
+```
+
+```bash
+#!/usr/bin/env bash
+# .claude/hooks/gate.sh — exit 2 (reason on stderr) to keep the turn open until the
+# mechanical checks pass; exit 0 lets it end. Fill in your commands from CLAUDE.md.
+set -uo pipefail
+if <your test command> && <your build command> && <your lint command>; then
+  exit 0
+fi
+echo "Self-check gate failed — fix tests/build/lint before finishing." >&2
+exit 2
+```
+
+- **Exit 2 blocks and feeds stderr back to Claude** as the reason to keep working; exit 0 lets
+  the turn end. Claude Code caps consecutive blocks, so keep the script fast and deterministic.
+- A hook runs **scripts, not agents**, so it hardens the *mechanical* half of the gate
+  (tests + build + lint). The `code-reviewer` half stays a subagent step inside `/implement`.
+- This is also the natural home for a project's other must-run checks (e.g. `shellcheck`, a
+  schema/manifest validator).
+
 ## Per-stream loop
 
 For each backlog item:
@@ -189,7 +241,8 @@ You have orchestration mode working end to end when:
 
 - [ ] `git --version` ≥ 2.5.
 - [ ] `CLAUDE.md` defines test / build / lint commands (or you accept they'll show as "not run").
-- [ ] `.claude/settings.local.json` sets `acceptEdits` (per user); `.claude/settings.json` allow-lists your verification commands + `git worktree add`.
+- [ ] Streams launch in **auto mode** (`claude --permission-mode auto`) — or the `acceptEdits` + allow-list fallback is set (personal `settings.local.json` + shared `settings.json`).
+- [ ] (Optional) A Stop hook enforces the mechanical gate so an unattended run can't skip it.
 - [ ] `new-stream` is on your path and creates a worktree + branch from a slug.
 - [ ] `code-reviewer` resolves (bundled, project-local, or inline fallback confirmed).
 - [ ] You dispatched ≥5 concurrent streams and reviewed at least one gate-green diff without watching keystrokes.
@@ -200,3 +253,19 @@ Everything degrades gracefully. Skip the worktree and auto-mode setup and the sk
 exactly as before — single stream, one branch, gate run inline. On a clean machine with no
 `code-reviewer` agent, `/implement` performs the review inline. Orchestration mode is purely
 additive; it takes nothing away from the linear `/refine → … → /retro` flow.
+
+## Cost, and Anthropic's built-in alternatives
+
+- **Mind the token cost.** Fanning out multiplies spend — each stream runs a full
+  implement→gate loop, and the gate adds a `code-reviewer` pass (plus `security-auditor` when
+  you request it). Anthropic measures multi-agent runs at roughly an order of magnitude more
+  tokens than a single session, so point the fleet at a **high-value backlog**, not one-line
+  changes.
+- **This is the manual orchestration model** — you dispatch streams and review each final diff.
+  Anthropic also ships more automated cousins if you want them:
+  [git worktrees](https://code.claude.com/docs/en/worktrees) (what `new-stream` sets up),
+  [Agent Teams](https://code.claude.com/docs/en/agent-teams) for coordinated multi-session runs
+  with a team lead, and
+  [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web) for isolated
+  cloud VMs. Keeping a human on each final diff is a deliberate choice here, not a limitation —
+  pick the automation level that matches how much you need to review.

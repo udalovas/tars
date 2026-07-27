@@ -148,11 +148,14 @@ the engineer:
 1. **Tests + build + lint** — via the `test` skill, which reads the project's actual
    commands from `CLAUDE.md`. Any command the project doesn't define is **reported as "not
    run", never silently passed.**
-2. **`code-reviewer`** on the cumulative stream diff. Invoke it by **bare name** (Agent tool
-   / `subagent_type: "code-reviewer"`) so a project-local `.claude/agents/code-reviewer.md`
-   overrides the bundled default — never pin the plugin-namespaced form, never overwrite a
-   project-local agent. **If no such agent is available, perform the code review inline** —
-   the gate must work on a clean machine with no bundled agents.
+2. **`code-reviewer`** on the cumulative stream diff — ask it to flag only gaps affecting
+   **correctness or the stated requirements, not style**, so the gate doesn't manufacture
+   blocking work (a reviewer told to find gaps always finds some). Invoke it by **bare name**
+   (Agent tool / `subagent_type: "code-reviewer"`) so a project-local
+   `.claude/agents/code-reviewer.md` overrides the bundled default — never pin the
+   plugin-namespaced form, never overwrite a project-local agent. **If no such agent is
+   available, perform the code review inline** — the gate must work on a clean machine with no
+   bundled agents.
 
 Severity → gate: a `code-reviewer` **Critical** finding blocks; **Important** and
 **Suggestions** are surfaced in the handoff but do not block.
