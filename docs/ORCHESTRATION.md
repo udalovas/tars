@@ -162,7 +162,7 @@ gate you trust and one the harness enforces.
 {
   "hooks": {
     "Stop": [
-      { "hooks": [ { "type": "command", "command": ".claude/hooks/gate.sh", "timeout": 600 } ] }
+      { "hooks": [ { "type": "command", "command": "bash .claude/hooks/gate.sh", "timeout": 600 } ] }
     ]
   }
 }

@@ -30,6 +30,9 @@ npm run test:tsc
 
 # Build, when the project defines one (e.g. npm run build · tsc -b · go build ./... · cargo build)
 npm run build
+
+# Lint                  (e.g. npm run lint · ruff check · golangci-lint run)
+npm run lint
 ```
 
 A **build** step is part of verification when the project defines one — run it alongside tests and lint, and report it the same way. Build failures are escalated, not auto-fixed (they need a code change, not a mechanical one).
