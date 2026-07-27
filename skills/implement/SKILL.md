@@ -132,8 +132,8 @@ permissions) and the full fleet model live in the orchestration guide that ships
 
 When running as a worktree stream, three things change:
 
-- **Stay in the stream's worktree.** Use the stream's slug for the branch (`<type>/<slug>`)
-  and for commits; never touch another stream's worktree.
+- **Stay in the stream's worktree.** Work on that stream's own branch and commit there; never
+  touch another stream's worktree.
 - **Auto-mode posture.** Proceed through the increment cycle without pausing for per-step
   confirmation. You still stop on a genuinely blocked task (see [Handling Blocked
   Tasks](#handling-blocked-tasks)) — auto mode speeds the routine, it doesn't suppress
@@ -175,7 +175,7 @@ diff:
 ```
 ✅ Stream <slug> — gate green
    tests ✓  lint ✓  build not run (none defined)  code-reviewer ✓ (N suggestions)
-   Diff: <N> files, +<add> −<del>  ·  branch <type>/<slug>
+   Diff: <N> files, +<add> −<del>  ·  branch worktree-<slug>
    Review the diff, or run /review to open the PR.
    (security-auditor not run — request it if this stream needs a security pass)
 ```

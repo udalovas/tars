@@ -24,15 +24,15 @@ Orchestrator (you, auto mode)
    │  dispatch 5–10 streams, jump between them
    ▼
 ┌── stream: <slug> ─────────────────────────────────────────┐
-│  worktree ../<repo>-worktrees/<slug>  ·  branch <type>/<slug> │
+│  worktree .claude/worktrees/<slug>  ·  branch worktree-<slug> │
 │  /implement → task loop → SELF-CHECK GATE → "ready for review" │
 └────────────────────────────────────────────────────────────┘
    ▲
 You review the FINAL DIFF per stream → /review opens the PR
 ```
 
-Nothing new tracks your streams: `git worktree list` and the Claude session switcher —
-both keyed by the slug — *are* the tracking surface.
+Nothing new tracks your streams: `git worktree list` and the session picker (`/resume`,
+`Ctrl+W` to see all worktrees) — both keyed by the slug — *are* the tracking surface.
 
 ## The slug is the single handle
 
@@ -42,9 +42,12 @@ you jump between streams:
 
 | Surface | Form | Example |
 |---|---|---|
-| Branch | `<type>/<slug>` (per your git conventions) | `feature/add-docs-gate` |
-| Worktree directory | `../<repo>-worktrees/<slug>` | `../tars-worktrees/add-docs-gate` |
-| Claude session label | `<slug>` | `add-docs-gate` |
+| Claude session name | `<slug>` (via `--name`) | `add-docs-gate` |
+| Worktree directory | `.claude/worktrees/<slug>` (via `--worktree`) | `.claude/worktrees/add-docs-gate` |
+| Branch | `worktree-<slug>` (created by `--worktree`) | `worktree-add-docs-gate` |
+
+You type the slug once, on the launch command; Claude Code derives the worktree and branch
+from it.
 
 ## The self-check gate (canonical definition)
 
@@ -75,10 +78,8 @@ Rules:
 
 ## Prerequisites
 
-- `git` ≥ 2.5 (git worktrees).
-- `origin`'s default branch is known locally, so new streams branch off the trunk. If
-  `git symbolic-ref refs/remotes/origin/HEAD` is unset (common in fresh clones), run
-  `git remote set-head origin -a` once; otherwise `new-stream` falls back to the current HEAD.
+- `git` ≥ 2.5 (git worktrees). Add `.claude/worktrees/` to `.gitignore` so worktree checkouts
+  don't show up as untracked files in your main checkout.
 - Your project's `CLAUDE.md` defines the test / build / lint commands. The gate reads these;
   any that are missing are reported as "not run" rather than silently skipped.
 - The `code-reviewer` agent available for automated review. The one bundled with TARS works
@@ -137,10 +138,9 @@ across files so you don't change the whole team's default:
   "permissions": {
     // "<cmd>:*" is a trailing wildcard (valid only at the end of the rule).
     "allow": [
-      "Bash(git worktree add:*)",  // create stream worktrees — NOT remove/prune
-      "Bash(npm test:*)",          // ← replace with your project's test command
-      "Bash(npm run build:*)",     // ← replace with your project's build command
-      "Bash(npm run lint:*)"       // ← replace with your project's lint command
+      "Bash(npm test:*)",       // ← replace with your project's test command
+      "Bash(npm run build:*)",  // ← replace with your project's build command
+      "Bash(npm run lint:*)"    // ← replace with your project's lint command
     ]
   }
 }
@@ -149,39 +149,7 @@ across files so you don't change the whole team's default:
 Either posture: keep the boundary tight, never add credential / network / destructive commands,
 and keep secrets out of settings — use your approved secrets manager, never plaintext.
 
-### 2. The `new-stream` helper
-
-Each stream needs its own worktree. Paste this shell function into your shell profile
-(`~/.zshrc` / `~/.bashrc`) — it needs nothing from TARS on your path:
-
-```bash
-# new-stream <slug> [<type>] — create an isolated worktree for one stream.
-new-stream() {
-  local slug="${1:?usage: new-stream <slug> [<type>]}" type="${2:-feature}"
-  case "$slug" in *[!a-z0-9-]*|-*|*-|*--*) echo "slug must be kebab-case" >&2; return 1;; esac
-  case "$type" in feature|bugfix|hotfix|chore|docs) ;; *) echo "type must be feature|bugfix|hotfix|chore|docs" >&2; return 1;; esac
-  local root repo worktree branch base
-  root="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"; [ -n "$root" ] || return 1
-  repo="$(basename "$root")"   # main worktree name, correct even from inside a worktree
-  worktree="$(dirname "$root")/${repo}-worktrees/${slug}"
-  branch="${type}/${slug}"
-  [ -e "$worktree" ] && { echo "worktree exists: $worktree" >&2; return 1; }
-  git show-ref --quiet --verify "refs/heads/${branch}" && { echo "branch exists: $branch" >&2; return 1; }
-  git show-ref --quiet --verify "refs/remotes/origin/${branch}" && { echo "branch exists on origin: $branch" >&2; return 1; }
-  if git symbolic-ref --quiet refs/remotes/origin/HEAD >/dev/null 2>&1
-  then base="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
-  else base="$(git -C "$root" rev-parse HEAD)"; fi   # main worktree HEAD, not caller's
-  mkdir -p "$(dirname "$worktree")"   # older git won't create leading dirs
-  git worktree add -b "$branch" "$worktree" "$base"
-}
-```
-
-> The TARS repo mirrors this as [`scripts/new-stream.sh`](../scripts/new-stream.sh) for
-> reference and for dogfooding TARS itself. Adopting projects don't get TARS's `scripts/` on
-> their path (plugins install skills, not scripts), so the copy-paste function above is the
-> supported form.
-
-### 3. (Optional) Enforce the gate deterministically with a Stop hook
+### 2. (Optional) Enforce the gate deterministically with a Stop hook
 
 The self-check gate is defined in the skills, so it is **advisory** — a stream follows it
 because it is instructed to. To make it a gate a run *cannot* skip, add a
@@ -223,27 +191,31 @@ exit 2
 
 For each backlog item:
 
-1. `new-stream <slug>` — creates `../<repo>-worktrees/<slug>` on `feature/<slug>`.
-2. Open a Claude session **in that worktree directory** and label it `<slug>`.
-3. Run `/implement` (with a plan from `/plan`, ideally). It runs the task loop, then the
+1. Start a named stream — one native command creates the worktree and opens a session in it:
+   ```bash
+   claude --worktree <slug> --name <slug> --permission-mode auto
+   ```
+   Claude Code makes the worktree (`.claude/worktrees/<slug>`, branch `worktree-<slug>`) and
+   labels the session `<slug>`. No custom tooling.
+2. Run `/implement` (ideally with a plan from `/plan`). It runs the task loop, then the
    self-check gate, in auto mode.
-4. When the gate is green, the stream surfaces one line: `✅ Stream <slug> — gate green`
-   with the diff summary. That is your cue.
-5. Review the final diff. Happy? Run `/review` to open the PR (`code-reviewer` already ran in
+3. When the gate is green, the stream surfaces one line: `✅ Stream <slug> — gate green` with
+   the diff summary. That is your cue.
+4. Review the final diff. Happy? Run `/review` to open the PR (`code-reviewer` already ran in
    the gate, so it isn't repeated).
 
-Repeat across 5–10 streams, jumping between sessions. You are interrupted per stream only
-when a diff is ready or the gate escalated something that needs your judgment.
+Jump between streams with `/resume` (press `Ctrl+W` to widen to all worktrees) or
+`claude --resume <slug>`. You are interrupted per stream only when a diff is ready or the gate
+escalated something that needs your judgment.
 
 ## Enable checklist
 
 You have orchestration mode working end to end when:
 
-- [ ] `git --version` ≥ 2.5.
+- [ ] `git --version` ≥ 2.5, and `.claude/worktrees/` is git-ignored.
 - [ ] `CLAUDE.md` defines test / build / lint commands (or you accept they'll show as "not run").
-- [ ] Streams launch in **auto mode** (`claude --permission-mode auto`) — or the `acceptEdits` + allow-list fallback is set (personal `settings.local.json` + shared `settings.json`).
+- [ ] Streams launch with `claude --worktree <slug> --name <slug> --permission-mode auto` (or the `acceptEdits` + allow-list fallback in `settings.local.json` / `settings.json`).
 - [ ] (Optional) A Stop hook enforces the mechanical gate so an unattended run can't skip it.
-- [ ] `new-stream` is on your path and creates a worktree + branch from a slug.
 - [ ] `code-reviewer` resolves (bundled, project-local, or inline fallback confirmed).
 - [ ] You dispatched ≥5 concurrent streams and reviewed at least one gate-green diff without watching keystrokes.
 
@@ -262,8 +234,9 @@ additive; it takes nothing away from the linear `/refine → … → /retro` flo
   tokens than a single session, so point the fleet at a **high-value backlog**, not one-line
   changes.
 - **This is the manual orchestration model** — you dispatch streams and review each final diff.
-  Anthropic also ships more automated cousins if you want them:
-  [git worktrees](https://code.claude.com/docs/en/worktrees) (what `new-stream` sets up),
+  It rides on Claude Code's native
+  [git worktrees](https://code.claude.com/docs/en/worktrees) (`--worktree`). If you want more
+  automation, Anthropic also ships
   [Agent Teams](https://code.claude.com/docs/en/agent-teams) for coordinated multi-session runs
   with a team lead, and
   [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web) for isolated
