@@ -75,25 +75,21 @@ Decide: single PR or multiple?
 
 State this decision explicitly.
 
-### Step 5: Write Tasks via TodoWrite
+### Step 5: Write the Task List
 
-Create tasks using `TodoWrite`. Each task must have:
+Each task carries the same four fields wherever it is recorded:
 
-```
-content:     [imperative description: "Create OrderItem data entity and service"]
-activeForm:  [present continuous: "Creating OrderItem data entity and service"]
-status:      pending
-```
-
-Include in the task content:
 - **Accept:** what must be true when done
 - **Verify:** exact runnable command for this project (e.g. `npm run test -w packages/<name>`, `pytest tests/x`, `go test ./pkg/...`)
 - **Files:** which files will be created or changed
 - **Parallel:** yes | no (whether this can run concurrently with other tasks)
 
+These fields populate both places the plan is recorded (Step 7): the durable
+`## Implementation Plan` section on the EDD, and the in-session `TodoWrite` list.
+
 ### Step 6: Confirm with Engineer
 
-Present the task list as a summary before writing to TodoWrite:
+Present the task list as a summary before persisting it:
 
 ```
 Implementation plan for EDD-023 (7 tasks, 1 PR):
@@ -103,10 +99,60 @@ Implementation plan for EDD-023 (7 tasks, 1 PR):
 3. [title] — [verify command] — parallel: yes (with 2)
 ...
 
-Shall I write this to the task list and start with `/implement`?
+Shall I persist this plan? (I'll then offer a clean-context handoff to `/implement`.)
 ```
 
-Only write to TodoWrite after confirmation.
+Only persist the plan after confirmation.
+
+### Step 7: Persist the Plan (durable)
+
+Persist to **two** places once the engineer confirms:
+
+1. **The EDD — durable, survives a cleared session.** Append an
+   `## Implementation Plan` section to the EDD file you read in Step 1, mirroring
+   how `/design-review` appends `## Design Review`. This is the artifact
+   `/implement` re-reads, so it must be self-contained — everything needed to
+   build without the planning conversation:
+
+   ```markdown
+   ## Implementation Plan
+
+   | Field   | Value             |
+   |---------|-------------------|
+   | Planned | YYYY-MM-DD        |
+   | PRs     | single / multiple |
+
+   ### Tasks
+   1. **[title]** — parallel: no
+      - Accept: [what must be true when done]
+      - Verify: `[runnable command]`
+      - Files: [files created/changed]
+   2. **[title]** — parallel: yes (with 3)
+      - ...
+   ```
+
+2. **`TodoWrite` — in-session progress tracking** for `/implement` to tick
+   through. Same tasks, same order.
+
+If `/plan` was run without an EDD (an ad-hoc plan), there is no file to append
+to — persist to `TodoWrite` only and say so; the clean-session handoff below
+does not apply.
+
+### Step 8: Hand Off to Implementation
+
+Planning is the last broad, tool-heavy phase; implementation is narrow and
+code-heavy. Offer a clean-context handoff so design exploration isn't dragged
+into coding — **advisory, never required**; continuing in this session behaves
+identically:
+
+```
+Plan saved to docs/EDD/NNN-topic.md (## Implementation Plan) and the task list.
+
+To implement in a fresh, focused context (recommended for a large plan):
+  /clear   then   /implement docs/EDD/NNN-topic.md
+
+Or just say "go" and I'll start implementing in this session.
+```
 
 ## Common Rationalizations
 
@@ -122,6 +168,7 @@ Only write to TodoWrite after confirmation.
 - Tasks that change more than ~5 files (split them)
 - A task list where Task 5 must be done before Task 3 (dependency graph violation)
 - Starting `/implement` before the engineer has confirmed the plan
+- Plan recorded only in `TodoWrite` when an EDD exists — a cleared session loses it
 
 ## Verification
 
@@ -129,5 +176,7 @@ Only write to TodoWrite after confirmation.
 - [ ] Every task has an exact, runnable `Verify` command
 - [ ] Task order respects the dependency graph
 - [ ] Parallel-safe tasks are flagged
-- [ ] Engineer confirmed the plan before TodoWrite was called
+- [ ] Engineer confirmed the plan before it was persisted
 - [ ] Single vs. multi-PR decision is stated
+- [ ] Plan persisted to the EDD `## Implementation Plan` section (durable), not just TodoWrite
+- [ ] Clean-context handoff offered (advisory) naming the EDD artifact

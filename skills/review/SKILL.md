@@ -17,6 +17,14 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
 
 ## Two Sub-Flows
 
+Both sub-flows are **artifact-centric and run cleanly in a fresh session** — they
+reconstruct everything from durable sources, never from the implementation
+conversation: git commits and the diff plus the EDD for PR creation (Sub-flow A),
+and additionally the open PR and its comment threads when responding to review
+(Sub-flow B). Running `/review` after `/clear` is fully supported and is the
+recommended way to review with fresh eyes — but running it in the same session
+works identically.
+
 ---
 
 ### Sub-flow A: PR Creation
@@ -140,6 +148,7 @@ This keeps the PR conversation readable and reviewers informed.
 ## Verification
 
 **PR Creation:**
+- [ ] Change reconstructed from artifacts (git diff + EDD), not conversational memory
 - [ ] Docs-consistency gate run (agent or inline); findings surfaced and engineer confirmed before proceeding
 - [ ] Title is ≤ 70 characters and imperative
 - [ ] Body has exactly three sections: Summary, EDD Reference, Test plan

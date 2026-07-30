@@ -15,16 +15,28 @@ Implement one task at a time. Each task ends with passing tests and a commit. Ne
 
 **When NOT to use:** Single-file, single-function changes where the full scope is obvious and fits in one edit.
 
-## Pre-flight
+## Loading the Plan
 
-If invoked without a task list from `/plan`:
+`/implement` is designed to run in a **fresh, cleared session** — it reconstructs
+what it needs from durable artifacts, not from the planning conversation. On
+start, in order:
 
-```
-⚠️ No implementation plan found — consider running `/plan docs/EDD/XXX.md`
-   first for better results. Continuing without a plan.
-```
+1. **EDD path given** (`/implement docs/EDD/NNN-topic.md`) — read the EDD's
+   `## Implementation Plan` section and rebuild the `TodoWrite` list from it: one
+   todo per task, preserving order and each task's Accept / Verify / Files /
+   Parallel fields. Also read the `## Design Review` section, if present, for
+   non-blocking issues to fold in. This is the normal clean-session handoff from
+   `/plan`.
+2. **No path, but `TodoWrite` already holds a plan** from `/plan` earlier in this
+   same session — use it as-is (the single-session, no-clear path).
+3. **Neither** — no plan exists:
 
-Then ask: "What are we building?" Establish a minimal task list before proceeding.
+   ```
+   ⚠️ No implementation plan found — consider running `/plan docs/EDD/XXX.md`
+      first for better results. Continuing without a plan.
+   ```
+
+   Then ask: "What are we building?" Establish a minimal task list before proceeding.
 
 ## The Increment Cycle
 
@@ -114,8 +126,19 @@ Summary:
 - [N] files changed
 - Tests passing ✓
 - Type check passing ✓
+```
 
-Next: run `/review` to create the PR.
+Then offer the implementation→review handoff. Review is artifact-centric — it
+reads the diff, not the build conversation — so a fresh context is the natural
+fit. **Advisory, never required**; continuing in this session behaves identically:
+
+```
+All work is committed (git) — nothing lives only in this conversation.
+
+To review in a fresh, artifact-focused context (recommended):
+  /clear   then   /review
+
+Or just say "go" and I'll create the PR from this session.
 ```
 
 ## Common Rationalizations
@@ -147,4 +170,5 @@ After each task:
 After all tasks:
 - [ ] All TodoWrite tasks marked complete
 - [ ] Full test suite passes
-- [ ] Engineer prompted to run `/review`
+- [ ] All work committed — nothing lives only in the conversation
+- [ ] Clean-context handoff to `/review` offered (advisory)

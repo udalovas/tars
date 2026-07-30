@@ -15,6 +15,11 @@ The ideal to measure against: **after the design is approved and reviewed, imple
 - After any session with noticeable friction: repeated clarifications, style or pattern corrections during implementation or PR review, extensive searching to reconstruct context the docs should have carried
 - When the same question or correction has come up more than once across sessions
 
+Under **phase-scoped sessions** (each phase run in its own cleared context), run
+the retro in the final working session — the review session — while its context
+is still warm, and lean on the durable artifacts (git, PR, EDD) for evidence from
+the earlier phases the conversation no longer holds. See Step 2.
+
 **When NOT to use:**
 - Mid-workflow — the PR hasn't landed or comments are unresolved; finish the chain first so the retro sees the whole picture, including what the review caught
 - After a clean session with no notable friction — say so in one or two sentences and stop; **never invent findings to fill a template**
@@ -26,9 +31,22 @@ The ideal to measure against: **after the design is approved and reviewed, imple
 
 Check that the workflow has actually finished (PR merged, review comments resolved). If it hasn't, say so and offer to run the retro once it has. A retro on an unfinished session misses the most valuable evidence — what the PR review caught.
 
-### Step 2: Scan the Session Through Three Lenses
+### Step 2: Scan the Session — and Its Artifacts — Through Three Lenses
 
-Walk back through the conversation and collect candidate observations. Three lenses, in order:
+Walk back through the conversation and collect candidate observations. **If the
+workflow ran as phase-scoped sessions, this conversation may only cover the last
+phase** — so also mine the durable artifacts the earlier phases left behind, which
+carry the evidence the cleared conversation no longer holds:
+
+- **git log / commit messages** — correction and fixup commits, scope that grew
+  past the plan, `fix(review): …` commits
+- **the PR thread** (`gh pr view --comments`) — every review comment is a
+  correction a written rule might have prevented
+- **the EDD** — its `## Design Review` section (blocking issues caught late) and
+  `## Implementation Plan` vs. what actually shipped (scope drift)
+
+Use whichever sources are available; artifacts and conversation are complementary,
+not either/or. Three lenses, in order:
 
 1. **Key decisions** — choices made during the session that shaped the outcome: design directions taken or rejected, scope cuts, trade-offs accepted. These anchor the retro and often deserve a line in the project's docs or an architecture decision record (check `CLAUDE.md` for where the project keeps design/decision docs).
 
@@ -68,7 +86,7 @@ Present the report:
 ### Findings (prioritized)
 
 **1. [finding title]** — [lens: rule gap | context efficiency]
-Evidence: [the specific session moment]
+Evidence: [the specific session moment or durable artifact]
 Proposal → `[target file]`:
 > [the exact text to add/change]
 
@@ -94,7 +112,7 @@ The durable output of a retro is the applied edits — the next session inherits
 
 - **Project-agnostic.** Never assume a language, framework, or toolchain. Findings and proposals are phrased in terms of the consuming project's own conventions, read from its `CLAUDE.md` and `.claude/rules/`.
 - **Edit project files only.** `CLAUDE.md`, `.claude/rules/`, and project docs. User-level `~/.claude/` files and skill definitions are recommendation-only, even if the engineer's approval seems to imply otherwise — call out the boundary explicitly.
-- **Evidence or it didn't happen.** A finding without a citable session moment is an opinion; leave it out.
+- **Evidence or it didn't happen.** A finding without citable evidence — a session moment or a durable artifact (commit, PR comment, EDD section) — is an opinion; leave it out.
 - **Curate hard.** Five findings maximum. A retro that lists twenty issues gets none of them fixed.
 - **Report is chat-only.** No retro log files, no backlog files.
 
@@ -120,7 +138,7 @@ The durable output of a retro is the applied edits — the next session inherits
 ## Verification
 
 - [ ] PR landed and comments resolved before the retro ran (or the skill said "not yet" and stopped)
-- [ ] Every finding cites the specific session moment that motivated it
+- [ ] Every finding cites specific evidence — a session moment or a durable artifact (commit, PR comment, EDD section)
 - [ ] Every proposal names an exact project file and contains the ready-to-apply text
 - [ ] Report contains at most 5 findings (or honestly reports a clean session)
 - [ ] Only engineer-approved edits were applied, only to project files
