@@ -18,10 +18,12 @@ Create a PR with a clean, EDD-linked description, and respond to review comments
 ## Two Sub-Flows
 
 Both sub-flows are **artifact-centric and run cleanly in a fresh session** — they
-reconstruct everything from durable sources (git commits and the diff, the EDD,
-the open PR and its comment threads), never from the implementation conversation.
-Running `/review` after `/clear` is fully supported and is the recommended way to
-review with fresh eyes — but running it in the same session works identically.
+reconstruct everything from durable sources, never from the implementation
+conversation: git commits and the diff plus the EDD for PR creation (Sub-flow A),
+and additionally the open PR and its comment threads when responding to review
+(Sub-flow B). Running `/review` after `/clear` is fully supported and is the
+recommended way to review with fresh eyes — but running it in the same session
+works identically.
 
 ---
 

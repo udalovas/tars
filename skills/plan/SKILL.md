@@ -89,7 +89,7 @@ These fields populate both places the plan is recorded (Step 7): the durable
 
 ### Step 6: Confirm with Engineer
 
-Present the task list as a summary before writing to TodoWrite:
+Present the task list as a summary before persisting it:
 
 ```
 Implementation plan for EDD-023 (7 tasks, 1 PR):
@@ -117,10 +117,10 @@ Persist to **two** places once the engineer confirms:
    ```markdown
    ## Implementation Plan
 
-   | Field   | Value              |
-   |---------|--------------------|
-   | Planned | YYYY-MM-DD         |
-   | PRs     | single | multiple |
+   | Field   | Value             |
+   |---------|-------------------|
+   | Planned | YYYY-MM-DD        |
+   | PRs     | single / multiple |
 
    ### Tasks
    1. **[title]** — parallel: no
