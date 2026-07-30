@@ -26,6 +26,8 @@ The skills encode an opinionated path from idea to merged PR. Each is invoked wi
 
 Typical flow: `/refine` → `/design` → `/design-review` → `/plan` → `/implement` → `/test` → `/review` → `/resolve-pr-comments` → `/retro`.
 
+Each phase hands off through a durable artifact (the EDD, its `## Implementation Plan` section, git commits, the PR) rather than the conversation, so you can **optionally run each phase in its own cleared context** — keeping context sized to the phase. At the planning→implementation and implementation→review seams the exiting skill offers an advisory `/clear`-and-resume prompt; ignore it and the whole chain runs in one session exactly as before.
+
 The skills are **project-agnostic**: they carry generic workflow logic and read project-specific details (test/lint commands, design-doc location, coding standards) from each project's own `CLAUDE.md`. Example commands in the skills (npm, etc.) are clearly marked as examples, not assumptions.
 
 ## Agents
