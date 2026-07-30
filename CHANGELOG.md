@@ -9,6 +9,34 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-30
+
+### Added
+- **Phase-scoped session flow** — an opt-in way to run each workflow phase in its
+  own cleared context, so planning material isn't dragged into implementation or
+  review and each phase keeps a small, relevant context. Fully
+  backward-compatible: running the whole chain in one session behaves exactly as
+  before. A skill cannot clear its own session, so the mechanism is a durable
+  handoff artifact plus an **advisory** `/clear`-and-resume prompt at each seam.
+  - `plan` now persists the task list to a durable `## Implementation Plan`
+    section on the EDD (not `TodoWrite` alone), so the plan survives a `/clear`,
+    and offers an advisory `/clear` + `/implement` handoff at the
+    planning→implementation seam.
+  - `implement` reconstructs the task list from that EDD section on a fresh
+    session, and closes with an advisory `/clear` + `/review` handoff at the
+    implementation→review seam.
+  - `review` states explicitly that both sub-flows reconstruct from durable
+    artifacts (git, EDD, PR threads) and run cleanly after `/clear`.
+  - `retro` mines durable artifacts (git log, PR thread, EDD `## Design Review`
+    / `## Implementation Plan`) alongside the conversation, so it still produces
+    evidence-linked findings when earlier phases ran in cleared sessions; it runs
+    in the final (review) session.
+
+### Changed
+- `CLAUDE.md` documents the phase-scoped session flow as design invariant #5
+  (durable handoff artifacts, fresh-read entries, advisory seam prompts, retro
+  as the deliberate exception).
+
 ## [0.3.0] - 2026-07-17
 
 ### Added
