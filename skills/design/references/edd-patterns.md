@@ -86,7 +86,7 @@ Reversible, low-cost-of-change decisions do not need this. This section is what 
 ## IMPLEMENTATION NOTES
 
 ### Deployment / Rollout Order
-1. {Step}
+1. {Step — anything that must be live before the next step is a PR boundary `/plan` will use}
 
 ### Rollback Plan
 1. {Step}

@@ -9,6 +9,20 @@ installs pick up changes predictably.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-30
+
+### Changed
+- **PR scoping: broad strokes, not big-bang** — `/plan` no longer sizes PRs by
+  LOC or file count. It defaults to one PR per behaviour slice per service,
+  layered by commits, and splits only at a named hard boundary: a published
+  contract the code consumes, cross-pipeline deploy order, post-deploy tests, or
+  infrastructure changes. Projects can name their own boundaries in `CLAUDE.md`
+  / `.claude/rules/`. The "~5 files" red flag now splits the task, not the PR.
+  `/implement`, `/review`, `/refine` and the EDD phase template carry matching
+  guidance against over-splitting and against mixing unrelated contexts.
+- **`/review` opens PRs ready for review** — the "Draft PR" step is now
+  "Compose the PR" and says to open it ready for review, not as a draft.
+
 ## [0.4.0] - 2026-07-30
 
 ### Added

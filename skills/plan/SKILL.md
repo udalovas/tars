@@ -68,12 +68,20 @@ Each vertical slice leaves the codebase in a passing, committable state.
 
 ### Step 4: Size the Change
 
-Decide: single PR or multiple?
+Decide: single PR or multiple? Move in broad strokes, not big-bang. Default to **one PR for the whole increment** (one per independently deployed unit, if the change spans several), layered by commits for review. Every PR boundary costs a CI cycle, a reviewer context switch and a deploy wait, so split only at a **hard boundary**:
 
-- **Single PR** if total change is under ~500 LOC or stays within one service boundary
-- **Multiple PRs** if the change crosses service boundaries or requires an infrastructure deployment between steps
+- **Published contract consumed by code** — an interface definition, schema or shared package whose new symbols the implementation imports must be published before the consumer builds
+- **Deploy-order dependency** — a migration, reference data or another deployable must be live in every environment before the code that depends on it
+- **Post-deploy tests** — tests asserting new behaviour that only pass once an environment carries it
+- **Infrastructure or delivery-pipeline changes** that ship on a separate path from the application code
 
-State this decision explicitly.
+Check `CLAUDE.md` / `.claude/rules/` first: a project may name its own boundaries in its own terms (which contract formats, which deploy steps, which test tiers), and those win over this generic list.
+
+Name the boundary behind every extra PR. Size alone (files, LOC, layers) is not a boundary. An unrelated concern from a different context still gets its own PR — don't mix contexts; manage that through task and increment scoping, not by fragmenting one change. Bundle the review-heavy parts (a contract, a data model) together in the PR that goes out first, so reviewers see the important decisions early and in one place.
+
+Tasks inside one PR may stay small (Step 5) — tasks are commits, not PRs.
+
+State this decision explicitly, with the boundary for each extra PR.
 
 ### Step 5: Write the Task List
 
@@ -120,10 +128,10 @@ Persist to **two** places once the engineer confirms:
    | Field   | Value             |
    |---------|-------------------|
    | Planned | YYYY-MM-DD        |
-   | PRs     | single / multiple |
+   | PRs     | single / multiple — boundary per extra PR |
 
    ### Tasks
-   1. **[title]** — parallel: no
+   1. **[title]** — parallel: no — PR: 1
       - Accept: [what must be true when done]
       - Verify: `[runnable command]`
       - Files: [files created/changed]
@@ -161,11 +169,13 @@ Or just say "go" and I'll start implementing in this session.
 | "I know what to build, I don't need tasks" | Without tasks, it's easy to lose track mid-implementation and end up with a half-built, untestable state. |
 | "I'll plan as I go" | Plans made mid-implementation are influenced by what's already built, leading to shortcuts that fit the current state rather than the intended design. |
 | "The tasks are too granular" | A task that takes 20 minutes is not too granular. A task that takes 3 hours with no intermediate checkpoint is too large. |
+| "Smaller PRs are easier to review" | Each extra PR costs a CI cycle, a reviewer context switch and a deploy wait. Commits give reviewers the layering; PRs follow hard boundaries. |
 
 ## Red Flags
 
 - Tasks with no verification command
-- Tasks that change more than ~5 files (split them)
+- Tasks that change more than ~5 files (split the task, not the PR)
+- A PR split that names no hard boundary from Step 4 — a PR per task, per layer or per N files is over-splitting; tasks are commits
 - A task list where Task 5 must be done before Task 3 (dependency graph violation)
 - Starting `/implement` before the engineer has confirmed the plan
 - Plan recorded only in `TodoWrite` when an EDD exists — a cleared session loses it
@@ -177,6 +187,6 @@ Or just say "go" and I'll start implementing in this session.
 - [ ] Task order respects the dependency graph
 - [ ] Parallel-safe tasks are flagged
 - [ ] Engineer confirmed the plan before it was persisted
-- [ ] Single vs. multi-PR decision is stated
+- [ ] Single vs. multi-PR decision is stated, and every extra PR names its hard boundary
 - [ ] Plan persisted to the EDD `## Implementation Plan` section (durable), not just TodoWrite
 - [ ] Clean-context handoff offered (advisory) naming the EDD artifact
