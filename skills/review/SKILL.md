@@ -60,7 +60,7 @@ works identically.
 
    This gate runs in **Sub-flow A only**; it does not run when responding to review comments (Sub-flow B).
 
-4. **Draft PR:**
+4. **Compose the PR** (open it ready for review, not as a draft):
    - Title: ≤ 70 characters, imperative verb ("Add webhook signature retry logic")
    - Body: three sections only (see template below)
    - Do not describe the *what* — the diff shows that. Describe the *why*.
