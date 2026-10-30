@@ -113,6 +113,7 @@ After capture: "Requirement refined. Run `/design` to start the EDD."
 - Requirements that contain "better", "faster", "improved" without a measurable threshold
 - No articulated value — if no one can answer "what happens if we don't do this?", the increment may not be worth building
 - No explicit out-of-scope list — scope is defined by what's excluded as much as what's included
+- One increment spanning unrelated contexts — scope separate increments instead of relying on later PR splitting to separate them
 - Key stakeholders not identified
 
 ## Verification

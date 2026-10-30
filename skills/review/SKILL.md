@@ -142,6 +142,8 @@ This keeps the PR conversation readable and reviewers informed.
 
 - PR title describing the *what* instead of the *why* ("Update auth.ts" → bad; "Fix session token expiry race condition" → good)
 - PR body longer than ~200 words (sign of over-explaining — simplify)
+- Splitting one change into several PRs by size or layer — split only at a hard boundary (published contract, deploy order, post-deploy tests, infrastructure; or one the project names) and say which in the description
+- One PR mixing changes from unrelated contexts — separate those instead
 - Any open review comment with no reply before re-requesting review
 - Applying a behavior-changing fix from a review comment without flagging it
 

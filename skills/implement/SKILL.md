@@ -38,6 +38,8 @@ start, in order:
 
    Then ask: "What are we building?" Establish a minimal task list before proceeding.
 
+**PR boundaries.** If the plan splits into multiple PRs, each split names a hard boundary (a published contract, a deploy-order dependency, post-deploy tests, infrastructure). Work the tasks for one PR, hand off to `/review` at that boundary, and continue the next PR once its prerequisite has landed. Don't introduce extra PRs the plan didn't name — a large diff inside one PR is layered by commits.
+
 ## The Increment Cycle
 
 ```
@@ -155,6 +157,7 @@ Or just say "go" and I'll create the PR from this session.
 - More than one task's worth of changes uncommitted
 - Committing with the test command skipped
 - Implementing features not in the task list (scope creep)
+- Opening a PR per task or per layer — tasks are commits; open a new PR only at a boundary the plan names
 - Patterns explicitly banned by the project's standards (e.g. `any` types or stray debug logging in a TS project)
 - Starting the next task before the current one's verification command passes
 
